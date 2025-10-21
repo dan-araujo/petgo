@@ -6,6 +6,7 @@ class AuthFormField extends StatelessWidget {
   final TextInputType inputType;
   final bool obscure;
   final String? Function(String?)? validator;
+  final bool isOptional;
 
   const AuthFormField({
     super.key,
@@ -14,6 +15,7 @@ class AuthFormField extends StatelessWidget {
     this.inputType = TextInputType.text,
     this.obscure = false,
     this.validator,
+    this.isOptional = false,
   });
 
   @override
@@ -25,14 +27,20 @@ class AuthFormField extends StatelessWidget {
         keyboardType: inputType,
         obscureText: obscure,
         decoration: InputDecoration(
-          labelText: label,
+          labelText: isOptional ? '$label (opcional)' : label,
           border: const OutlineInputBorder(),
         ),
-        validator:
-            validator ??
-            (value) => (value == null || value.isEmpty)
-                ? 'O campo "$label" é obrigatório'
-                : null,
+        validator: (value) {
+          if (isOptional && (value == null || value.isEmpty)) return null;
+
+          if (validator != null) return validator!(value);
+
+          if (value == null || value.isEmpty) {
+            return 'O campo "$label" é obrigatório';
+          }
+
+          return null;
+        },
       ),
     );
   }
