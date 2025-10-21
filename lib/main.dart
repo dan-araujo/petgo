@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/screens/home/home_screen.dart';
+import 'package:petgo/features/auth/screens/home/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
