@@ -1,15 +1,24 @@
 bool isValidEmail(String email) {
-  final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+  final regex = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,4}$');
   return regex.hasMatch(email);
 }
 
 String? validatePassword(String? value) {
-  if(value == null || value.isEmpty) {
+  if (value == null || value.isEmpty) {
     return 'A senha é obrigatória';
-  } else if(value.length < 6) {
+  } else if (value.length < 6) {
     return 'Senha deve ter no mínimo 6 caracteres';
   }
   return null; // válida
+}
+
+String? validateEmail(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'O e-mail é obrigatório';
+  } else if (!isValidEmail(value)) {
+    return 'E-mail inválido';
+  }
+  return null;
 }
 
 bool isValidCPF(String cpf) {
