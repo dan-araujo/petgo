@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/features/auth/screens/register/register_client_screen.dart';
+import 'package:petgo/features/auth/screens/register/register_customer_screen.dart';
+import 'package:petgo/features/auth/screens/register/register_delivery_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_shop_screen.dart';
 
 class MyApp extends StatelessWidget {
@@ -40,7 +41,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context, 
-                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    MaterialPageRoute(builder: (context) => const RegisterCustomerScreen()),
                     );
                 },
                 ),
@@ -66,10 +67,10 @@ class HomeScreen extends StatelessWidget {
                       minimumSize: const Size(double.infinity, 50),
                      ),
                      onPressed: () {
-                      /* Navigator.push( 
+                      Navigator.push( 
                         context, 
                         MaterialPageRoute(builder: (context) => const RegisterDeliveryScreen()),
-                      ); */
+                      );
                      },
                      ),
             ],
