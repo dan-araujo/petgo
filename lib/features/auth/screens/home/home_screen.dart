@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:petgo/features/auth/screens/register/register_customer_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_delivery_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_shop_screen.dart';
+import 'package:petgo/features/auth/screens/register/register_vet_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -70,6 +71,20 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push( 
                         context, 
                         MaterialPageRoute(builder: (context) => const RegisterDeliveryScreen()),
+                      );
+                     },
+                     ),
+                     const SizedBox(height: 16),
+                     ElevatedButton.icon(
+                    icon: const Icon(Icons.medical_services),
+                    label: const Text('Cadastrar Veterinário'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                     ),
+                     onPressed: () {
+                      Navigator.push( 
+                        context, 
+                        MaterialPageRoute(builder: (context) => const RegisterVetScreen()),
                       );
                      },
                      ),
