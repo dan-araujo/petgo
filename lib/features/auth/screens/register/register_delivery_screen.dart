@@ -39,6 +39,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
               AuthFormField(
                 controller: _nameController,
                 label: 'Nome Completo',
+                validator: validateName,
               ),
               AuthFormField(
                 controller: _emailController,
@@ -50,6 +51,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
                 controller: _phoneController,
                 label: 'Telefone',
                 inputType: TextInputType.phone,
+                validator: validatePhone,
               ),
               AuthFormField(
                 controller: _cpfController,
@@ -66,7 +68,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
                   DropdownMenuItem(value: 'moto', child: Text('Moto')),
                   DropdownMenuItem(value: 'carro', child: Text('Carro')),
                   DropdownMenuItem(
-                    value: 'bibicleta',
+                    value: 'bicicleta',
                     child: Text('Bicicleta'),
                   ),
                 ],

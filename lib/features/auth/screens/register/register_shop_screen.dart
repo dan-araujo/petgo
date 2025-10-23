@@ -17,6 +17,7 @@ class _RegisterShopScreenState extends State<RegisterShopScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _selectedCategory;
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -36,21 +37,48 @@ class _RegisterShopScreenState extends State<RegisterShopScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              AuthFormField(controller: _nameController, label: 'Nome do Estabelecimento'),
+              AuthFormField(
+                controller: _nameController, 
+                label: 'Nome do Estabelecimento',
+                validator: validateName,
+                ),
               AuthFormField(controller: _emailController, 
               label: 'E-mail', 
               inputType: TextInputType.emailAddress,
               validator: (v) => v != null && isValidEmail(v) ? null : 'Email inválido'),
-              AuthFormField(controller: _phoneController, label: 'Telefone', inputType: TextInputType.phone),
+              AuthFormField(
+                controller: _phoneController, 
+                label: 'Telefone', 
+                inputType: TextInputType.phone,
+                validator: validatePhone,
+                ),
               const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  border: OutlineInputBorder(),
+                ),
+                initialValue: _selectedCategory,
+                items: const [
+                  DropdownMenuItem(
+                    value: 'PETSHOP',
+                    child: Text('PetShop'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'FEED_STORE',
+                      child: Text('Casa de Ração'),
+                      ),
+                ], 
+                onChanged: (value) => setState(() => _selectedCategory = value),
+                validator: validateCategory,
+                ),
               TextFormField(
                 controller: _cnpjController,
                 decoration: const InputDecoration(labelText: 'CNPJ'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'CNPJ obrigatório';
-                  // Função para validação do CNPJ será feita logo
-                  return null;
+                  return isValidCNPJ(value) ? null : 'CNPJ inválido';
                 },
               ),
               AuthFormField(

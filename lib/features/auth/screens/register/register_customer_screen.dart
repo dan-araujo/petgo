@@ -38,6 +38,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
               AuthFormField(
                 controller: _nameController,
                 label: 'Nome Completo',
+                validator: validateName,
               ),
               AuthFormField(
                 controller: _emailController,
@@ -49,6 +50,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 controller: _phoneController,
                 label: 'Telefone',
                 inputType: TextInputType.phone,
+                validator: validatePhone,
               ),
               AuthFormField(
                 controller: _cpfController,
