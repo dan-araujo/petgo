@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:petgo/core/utils/http_error_handler.dart';
+import 'package:petgo/core/utils/snackbar_helper.dart';
+import 'dart:convert';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
@@ -16,13 +20,57 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final _phoneController = TextEditingController();
   final _cpfController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  final String customerUrl = 'http://10.0.2.2:3000/customers/register';
 
+  void _submitForm() async {
+    if (_formKey.currentState == null || !_formKey.currentState!.validate())
+      return;
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+    setState(() => _isLoading = true);
+
+    final url = Uri.parse(customerUrl);
+
+    final body = {
+      "name": _nameController.text.trim(),
+      "email": _emailController.text.trim(),
+      "phone": _phoneController.text.trim(),
+      "password": _passwordController.text.trim(),
+      if (_cpfController.text.trim().isNotEmpty)
+        "cpf": _cpfController.text.trim(),
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
       );
+
+      if (!mounted) return;
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        showAppSnackBar(context, 'Cadastro realizado com sucesso!');
+        _formKey.currentState!.reset();
+      } else {
+        final message = getFriendlyErrorMessage(
+          response.statusCode,
+          responseData['message'],
+        );
+        showAppSnackBar(context, message, isError: true);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        'Erro de conexão. Verifique sua internet.',
+        isError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -33,6 +81,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          key: _formKey,
           child: ListView(
             children: [
               AuthFormField(
@@ -57,8 +106,9 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 label: 'CPF',
                 inputType: TextInputType.number,
                 isOptional: true,
-                validator: (v) =>
-                  (v == null || v.isEmpty) ? null : (isValidCPF(v) ? null : 'CPF inválido'),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? null
+                    : (isValidCPF(v) ? null : 'CPF inválido'),
               ),
               AuthFormField(
                 controller: _passwordController,
@@ -68,14 +118,21 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: _isLoading ? null : _submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: const Text('Cadastrar'),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Color.fromARGB(255, 168, 31, 31),
+                      )
+                    : const Text('Cadastrar'),
               ),
             ],
           ),
