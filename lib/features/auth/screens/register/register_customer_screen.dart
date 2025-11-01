@@ -3,6 +3,7 @@ import 'package:petgo/core/services/api_service.dart';
 import 'package:petgo/core/utils/http_error_handler.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
+import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
 class RegisterCustomerScreen extends StatefulWidget {
@@ -22,8 +23,9 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   bool _isLoading = false;
 
   void _submitForm() async {
-    if(_formKey.currentState == null || !_formKey.currentState!.validate()) return;
-    
+    if (_formKey.currentState == null || !_formKey.currentState!.validate())
+      return;
+
     setState(() => _isLoading = true);
 
     final result = await ApiService.post(
@@ -48,7 +50,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       );
       showAppSnackBar(context, message, isError: true);
     }
-    if(mounted) setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -94,22 +96,11 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 validator: validatePassword,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(
-                        color: Color.fromARGB(255, 168, 31, 31),
-                      )
-                    : const Text('Cadastrar'),
+              SubmitButton(
+                isLoading: _isLoading,
+                label: 'Cadastrar Loja',
+                color: Colors.teal,
+                onPressed: _submitForm,
               ),
             ],
           ),
