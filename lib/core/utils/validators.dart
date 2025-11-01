@@ -3,18 +3,54 @@ bool isValidEmail(String email) {
   return regex.hasMatch(email);
 }
 
-String? validateName(String? value) {
+String? _validateName(
+  String? value, {
+  required int minLenght,
+  required String emptyMessage,
+  required String shortMessage,
+}) {
   if (value == null || value.trim().isEmpty) {
-    return 'O nome é obrigatório';
+    return emptyMessage;
   }
-  final parts = value.trim().split(' ');
-  if (parts.length < 2) {
-    return 'Informe o nome completo';
+
+  if (value.trim().length < minLenght) {
+    return shortMessage;
   }
-  if (value.length < 3) {
-    return 'Nome muito curto';
-  }
+
   return null;
+}
+
+String? validatePersonName(String? value) {
+  final nameValidation = _validateName(
+    value,
+    minLenght: 3,
+    emptyMessage: 'O nome é obrigatório',
+    shortMessage: 'O nome deve ter pelo menos 3 caracteres',
+  );
+
+  if (nameValidation != null) return nameValidation;
+
+  final trimmed = value!.trim();
+  final parts = trimmed.split(RegExp(r'\s+'));
+
+  if (parts.length < 2) {
+    return 'Digite o nome completo (nome e sobrenome)';
+  }
+
+  if (parts.any((p) => p.length < 2)) {
+    return 'Cada nome deve ter pelo menos 2 letras';
+  }
+
+  return null;
+}
+
+String? validateStoreName(String? value) {
+  return _validateName(
+    value,
+    minLenght: 2,
+    emptyMessage: 'O nome do estabelecimento é obrigatório',
+    shortMessage: 'O nome deve ter pelo menos 2 caracteres',
+  );
 }
 
 String? validatePhone(String? value) {
