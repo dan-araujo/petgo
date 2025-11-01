@@ -3,6 +3,7 @@ import 'package:petgo/core/services/api_service.dart';
 import 'package:petgo/core/utils/http_error_handler.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
+import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
 class RegisterStoreScreen extends StatefulWidget {
@@ -25,8 +26,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
   final List<String> _categories = ['PETSHOP', 'FEED_STORE'];
 
   void _submitForm() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate())
-      return;
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
@@ -120,20 +120,11 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                 validator: validatePassword,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              SubmitButton(
+                isLoading: _isLoading,
+                label: 'Cadastrar Loja',
+                color: Colors.teal,
                 onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Cadastrar'),
               ),
             ],
           ),
