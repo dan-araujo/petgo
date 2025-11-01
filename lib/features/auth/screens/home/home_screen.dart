@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petgo/features/auth/screens/register/register_customer_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_delivery_screen.dart';
-import 'package:petgo/features/auth/screens/register/register_shop_screen.dart';
+import 'package:petgo/features/auth/screens/register/register_store_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_vet_screen.dart';
 
 class MyApp extends StatelessWidget {
@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                   onPressed:() {
                     Navigator.push( 
                       context,
-                      MaterialPageRoute(builder: (context) => const RegisterShopScreen()),
+                      MaterialPageRoute(builder: (context) => const RegisterStoreScreen()),
                     );
                   },
                   ),
