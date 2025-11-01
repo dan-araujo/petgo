@@ -5,36 +5,41 @@ import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
-class RegisterCustomerScreen extends StatefulWidget {
-  const RegisterCustomerScreen({super.key});
+class RegisterStoreScreen extends StatefulWidget {
+  const RegisterStoreScreen({super.key});
 
   @override
-  State<RegisterCustomerScreen> createState() => _RegisterCustomerScreenState();
+  State<StatefulWidget> createState() => _RegisterStoreScreenState();
 }
 
-class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
+class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _cpfController = TextEditingController();
-  final _passwordController = TextEditingController();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _cnpjController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  String? _selectedCategory;
+  final List<String> _categories = ['PETSHOP', 'FEED_STORE'];
 
   void _submitForm() async {
-    if(_formKey.currentState == null || !_formKey.currentState!.validate()) return;
-    
+    if (_formKey.currentState == null || !_formKey.currentState!.validate())
+      return;
+
     setState(() => _isLoading = true);
 
     final result = await ApiService.post(
-      endpoint: '/customers/register',
+      endpoint: '/stores/register',
       data: {
         "name": _nameController.text.trim(),
         "email": _emailController.text.trim(),
         "phone": _phoneController.text.trim(),
         "password": _passwordController.text.trim(),
-        if (_cpfController.text.trim().isNotEmpty)
-          "cpf": _cpfController.text.trim(),
+        "category": _selectedCategory,
+        if (_cnpjController.text.trim().isNotEmpty)
+          "cnpj": _cnpjController.text.trim(),
       },
     );
 
@@ -48,13 +53,13 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       );
       showAppSnackBar(context, message, isError: true);
     }
-    if(mounted) setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro de Cliente')),
+      appBar: AppBar(title: const Text('Cadastro Petshop')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -63,14 +68,15 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
             children: [
               AuthFormField(
                 controller: _nameController,
-                label: 'Nome Completo',
-                validator: validatePersonName,
+                label: 'Nome do Estabelecimento',
+                validator: validateStoreName,
               ),
               AuthFormField(
                 controller: _emailController,
                 label: 'E-mail',
                 inputType: TextInputType.emailAddress,
-                validator: validateEmail,
+                validator: (v) =>
+                    v != null && isValidEmail(v) ? null : 'Email inválido',
               ),
               AuthFormField(
                 controller: _phoneController,
@@ -78,14 +84,34 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 inputType: TextInputType.phone,
                 validator: validatePhone,
               ),
-              AuthFormField(
-                controller: _cpfController,
-                label: 'CPF',
-                inputType: TextInputType.number,
-                isOptional: true,
-                validator: (v) => (v == null || v.isEmpty)
-                    ? null
-                    : (isValidCPF(v) ? null : 'CPF inválido'),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  border: OutlineInputBorder(),
+                ),
+                items: _categories
+                    .map(
+                      (category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(
+                          category == 'PETSHOP' ? 'Pet Shop' : 'Casa de Ração',
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() => _selectedCategory = value),
+                validator: validateCategory,
+              ),
+              TextFormField(
+                controller: _cnpjController,
+                decoration: const InputDecoration(labelText: 'CNPJ'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'CNPJ obrigatório';
+                  return isValidCNPJ(value) ? null : 'CNPJ inválido';
+                },
               ),
               AuthFormField(
                 controller: _passwordController,
@@ -95,7 +121,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _isLoading ? null : _submitForm,
+                onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
@@ -106,9 +132,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                   ),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(
-                        color: Color.fromARGB(255, 168, 31, 31),
-                      )
+                    ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Cadastrar'),
               ),
             ],
