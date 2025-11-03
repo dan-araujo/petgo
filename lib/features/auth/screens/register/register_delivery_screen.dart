@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/core/services/api_service.dart';
+import 'package:petgo/core/utils/http_error_handler.dart';
+import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
@@ -17,15 +20,37 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
   final _phoneController = TextEditingController();
   final _cpfController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _vehicleType = 'moto';
   bool _isLoading = false;
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+  void _submitForm() async {
+    if (_formKey.currentState == null || !_formKey.currentState!.validate())
+      return;
+
+    setState(() => _isLoading = true);
+
+    final result = await ApiService.post(
+      endpoint: '/delivery/register',
+      data: {
+        "name": _nameController.text.trim(),
+        "email": _emailController.text.trim(),
+        "phone": _phoneController.text.trim(),
+        "password": _passwordController.text.trim(),
+        if (_cpfController.text.trim().isNotEmpty)
+          "cpf": _cpfController.text.trim(),
+      },
+    );
+
+    if (result['success'] == true) {
+      showAppSnackBar(context, 'Cadastro realizado com sucesso!');
+      _formKey.currentState!.reset();
+    } else {
+      final message = getFriendlyErrorMessage(
+        result['statusCode'] ?? 400,
+        result['message'],
       );
+      showAppSnackBar(context, message, isError: true);
     }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -64,23 +89,6 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
                     ? null
                     : (isValidCPF(v) ? null : 'CPF inválido'),
               ),
-              DropdownButtonFormField(
-                initialValue: _vehicleType,
-                items: const [
-                  DropdownMenuItem(value: 'moto', child: Text('Moto')),
-                  DropdownMenuItem(value: 'carro', child: Text('Carro')),
-                  DropdownMenuItem(
-                    value: 'bicicleta',
-                    child: Text('Bicicleta'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _vehicleType = value!;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Tipo de veículo'),
-              ),
               AuthFormField(
                 controller: _passwordController,
                 label: 'Senha',
@@ -90,7 +98,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
               const SizedBox(height: 20),
               SubmitButton(
                 isLoading: _isLoading,
-                label: 'Cadastrar Loja',
+                label: 'Cadastrar Entregador',
                 color: Colors.teal,
                 onPressed: _submitForm,
               ),
