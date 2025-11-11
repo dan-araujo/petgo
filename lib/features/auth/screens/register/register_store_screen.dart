@@ -104,10 +104,10 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                 onChanged: (value) => setState(() => _selectedCategory = value),
                 validator: validateCategory,
               ),
-              TextFormField(
+              AuthFormField(
                 controller: _cnpjController,
-                decoration: const InputDecoration(labelText: 'CNPJ'),
-                keyboardType: TextInputType.number,
+                label: 'CNPJ',
+                inputType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'CNPJ obrigatório';
                   return isValidCNPJ(value) ? null : 'CNPJ inválido';
