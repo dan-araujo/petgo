@@ -23,9 +23,8 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   bool _isLoading = false;
 
   void _submitForm() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate())
-      return;
-
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
+    
     setState(() => _isLoading = true);
 
     final result = await ApiService.post(
