@@ -23,8 +23,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
   bool _isLoading = false;
 
   void _submitForm() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate())
-      return;
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
