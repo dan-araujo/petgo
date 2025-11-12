@@ -59,7 +59,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro Petshop')),
+      appBar: AppBar(title: const Text('Cadastro de Parceiros')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
