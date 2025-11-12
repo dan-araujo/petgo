@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/features/auth/screens/login/store_login_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_customer_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_delivery_screen.dart';
-import 'package:petgo/features/auth/screens/register/register_store_screen.dart';
 import 'package:petgo/features/auth/screens/register/register_veterinary_screen.dart';
 
 class MyApp extends StatelessWidget {
@@ -33,100 +33,111 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
       body: SafeArea(
-  child: LayoutBuilder(
-    builder: (context, constraints) {
-      return SingleChildScrollView( 
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: constraints.maxHeight, 
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/pets_welcome.png',
-                  height: MediaQuery.of(context).size.height * 0.30, 
-                  fit: BoxFit.contain,
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 6,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/images/pets_welcome.png',
+                        height: MediaQuery.of(context).size.height * 0.30,
+                        fit: BoxFit.contain,
+                      ),
 
-                Text(
-                  'Bem-vindo ao\nPetGo!',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                      Text(
+                        'Bem-vindo ao\nPetGo!',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      _buildOptionButton(
+                        context,
+                        icon: Icons.person,
+                        label: 'Sou Cliente',
+                        color: const Color(0xFF9B59B6),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RegisterCustomerScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
+
+                      _buildOptionButton(
+                        context,
+                        icon: Icons.store,
+                        label: 'Sou Parceiro',
+                        color: const Color(0xFF9B59B6),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StoreLoginScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      _buildOptionButton(
+                        context,
+                        icon: Icons.delivery_dining,
+                        label: 'Sou Entregador',
+                        color: const Color(0xFF9B59B6),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RegisterDeliveryScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
+
+                      _buildOptionButton(
+                        context,
+                        icon: Icons.pets,
+                        label: 'Sou Veterinário',
+                        color: const Color(0xFF9B59B6),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RegisterVeterinaryScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 5),
-
-                _buildOptionButton(
-                  context,
-                  icon: Icons.person,
-                  label: 'Sou Cliente',
-                  color: const Color(0xFF9B59B6),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterCustomerScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-
-                _buildOptionButton(
-                  context,
-                  icon: Icons.store,
-                  label: 'Sou Parceiro',
-                  color: const Color(0xFF9B59B6),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterStoreScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                _buildOptionButton(
-                  context,
-                  icon: Icons.delivery_dining,
-                  label: 'Sou Entregador',
-                  color: const Color(0xFF9B59B6),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterDeliveryScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-
-                _buildOptionButton(
-                  context,
-                  icon: Icons.pets,
-                  label: 'Sou Veterinário',
-                  color: const Color(0xFF9B59B6),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterVeterinaryScreen()),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
-      );
-    },
-  ),
-),
+      ),
     );
   }
 
