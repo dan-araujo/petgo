@@ -6,14 +6,14 @@ import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
-class RegisterDeliveryScreen extends StatefulWidget {
-  const RegisterDeliveryScreen({super.key});
+class CustomerRegisterScreen extends StatefulWidget {
+  const CustomerRegisterScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _RegisterScreenState();
+  State<CustomerRegisterScreen> createState() => _CustomerRegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterDeliveryScreen> {
+class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -24,11 +24,11 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
-
+    
     setState(() => _isLoading = true);
 
     final result = await ApiService.post(
-      endpoint: '/delivery/register',
+      endpoint: '/customers/register',
       data: {
         "name": _nameController.text.trim(),
         "email": _emailController.text.trim(),
@@ -39,6 +39,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
       },
     );
 
+    if(!mounted) return;
     if (result['success'] == true) {
       showAppSnackBar(context, 'Cadastro realizado com sucesso!');
       _formKey.currentState!.reset();
@@ -49,13 +50,13 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
       );
       showAppSnackBar(context, message, isError: true);
     }
-    if (mounted) setState(() => _isLoading = false);
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro de Entregador')),
+      appBar: AppBar(title: const Text('Cadastro de Cliente')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -97,7 +98,7 @@ class _RegisterScreenState extends State<RegisterDeliveryScreen> {
               const SizedBox(height: 20),
               SubmitButton(
                 isLoading: _isLoading,
-                label: 'Cadastrar Entregador',
+                label: 'Cadastrar Loja',
                 color: Colors.teal,
                 onPressed: _submitForm,
               ),

@@ -6,14 +6,14 @@ import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
 
-class RegisterVeterinaryScreen extends StatefulWidget {
-  const RegisterVeterinaryScreen({super.key});
+class VeterinaryRegisterScreen extends StatefulWidget {
+  const VeterinaryRegisterScreen({super.key});
 
   @override
   State<StatefulWidget> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterVeterinaryScreen> {
+class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -39,6 +39,7 @@ class _RegisterScreenState extends State<RegisterVeterinaryScreen> {
       },
     );
 
+    if (!mounted) return;
     if (result['success'] == true) {
       showAppSnackBar(context, 'Cadastro realizado com sucesso!');
       _formKey.currentState!.reset();
@@ -49,7 +50,7 @@ class _RegisterScreenState extends State<RegisterVeterinaryScreen> {
       );
       showAppSnackBar(context, message, isError: true);
     }
-    if (mounted) setState(() => _isLoading = false);
+    setState(() => _isLoading = false);
   }
 
   @override
