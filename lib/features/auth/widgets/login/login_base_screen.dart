@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petgo/core/utils/validators.dart';
+import 'package:petgo/features/auth/services/auth_service.dart';
 
 class LoginBaseScreen extends StatefulWidget {
   final String title;
@@ -31,25 +32,52 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  late final ValueNotifier<bool> _isPasswordValidNotifier = ValueNotifier(
+    false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() {
+      _isPasswordValidNotifier.value = _passwordController.text.length >= 6;
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _isPasswordValidNotifier.dispose();
     super.dispose();
   }
 
   Future<void> _onLoginPressed() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
+
     try {
       await widget.onLogin(
         _emailController.text.trim(),
         _passwordController.text,
       );
-    } finally {
+    } on UnauthorizedException catch(e) {
+      _showErrorSnackBar(e.message);
+    } on ServerException catch(e) {
+      _showErrorSnackBar(e.message);
+    } catch(e) {
+      _showErrorSnackBar('Algo deu errado. Tente novamente.');
+    }
+    finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if(mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -182,31 +210,46 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                 // Botão Entrar
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _onLoginPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.buttonColor,
-                      disabledBackgroundColor:
-                          widget.buttonColor.withOpacity(0.6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text(
-                            'Entrar',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _isPasswordValidNotifier,
+                    builder: (context, isPasswordValid, _) {
+                      final buttonColor = isPasswordValid
+                          ? widget.buttonColor
+                          : widget.buttonColor.withValues(alpha: 0.6);
+
+                      final isEnabled = isPasswordValid && !_isLoading;
+
+                      return ElevatedButton(
+                        onPressed: isEnabled ? _onLoginPressed : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: buttonColor,
+                          disabledBackgroundColor: widget.buttonColor.withValues(alpha: 0.6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                'Entrar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      );
+                    },
                   ),
                 ),
 
