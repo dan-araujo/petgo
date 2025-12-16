@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/features/auth/screens/register/store_register_screen.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
 import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
-import 'package:petgo/features/store/screens/store_home_screen.dart';
 
 class StoreLoginScreen extends StatelessWidget {
   const StoreLoginScreen({super.key});
@@ -19,10 +17,7 @@ class StoreLoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFFFF7F4),
       buttonColor: const Color(0xFFEC5050),
       onRegisterTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const StoreRegisterScreen()),
-        );
+        Navigator.pushNamed(context, '/store-register');
       },
       onLogin: (email, password) async {
         final result = await authService.loginStore(email, password);
@@ -38,12 +33,10 @@ class StoreLoginScreen extends StatelessWidget {
 
         if(!context.mounted) return;
         
-        Navigator.pushReplacement(
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                StoreHomeScreen(userName: result.user.name),
-          ),
+          '/store-home',
+          arguments: result.user.name,
         );
       },
     );

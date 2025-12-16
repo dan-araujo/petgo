@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/features/auth/screens/register/customer_register_screen.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
 import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
-import 'package:petgo/features/customer/screens/customer_home_screen.dart';
 
 class CustomerLoginScreen extends StatelessWidget {
   const CustomerLoginScreen({super.key});
@@ -19,12 +17,7 @@ class CustomerLoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFE8E1FD),
       buttonColor: const Color(0xFF2596BE),
       onRegisterTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const CustomerRegisterScreen(),
-          ),
-        );
+        Navigator.pushNamed(context, '/customer-register');
       },
       onLogin: (email, password) async {
         final result = await authService.loginCustomer(email, password);
@@ -37,12 +30,10 @@ class CustomerLoginScreen extends StatelessWidget {
 
         if (!context.mounted) return;
 
-        Navigator.pushReplacement(
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                CustomerHomeScreen(userName: result.user.name),
-          ),
+          '/customer-home',
+          arguments: result.user.name,
         );
       },
     );

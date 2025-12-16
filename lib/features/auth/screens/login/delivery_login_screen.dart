@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/features/auth/screens/register/delivery_register_screen.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
 import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
-import 'package:petgo/features/delivery/screens/delivery_home_screen.dart';
 
 class DeliveryLoginScreen extends StatelessWidget {
   const DeliveryLoginScreen({super.key});
@@ -20,10 +18,7 @@ class DeliveryLoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFE5F8E5),
       buttonColor: const Color(0xFF85AB6D),
       onRegisterTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const DeliveryRegisterScreen()),
-        );
+        Navigator.pushNamed(context, '/delivery-register');
       },
       onLogin: (email, password) async {
         final result = await authService.loginDelivery(email, password);
@@ -39,12 +34,10 @@ class DeliveryLoginScreen extends StatelessWidget {
 
         if(!context.mounted) return;
         
-        Navigator.pushReplacement(
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                DeliveryHomeScreen(userName: result.user.name),
-          ),
+          '/delivery-home',
+          arguments: result.user.name,
         );
       },
     );

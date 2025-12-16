@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/features/auth/screens/register/register_veterinary_screen.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
 import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
-import 'package:petgo/features/veterinary/screens/veterinary_home_screen.dart';
 
 class VeterinaryLoginScreen extends StatelessWidget {
   const VeterinaryLoginScreen({super.key});
@@ -20,12 +18,7 @@ class VeterinaryLoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFFFF3E0),
       buttonColor: const Color(0xFFF28C2B),
       onRegisterTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const VeterinaryRegisterScreen(),
-          ),
-        );
+        Navigator.pushNamed(context, '/veterinary-register');
       },
       onLogin: (email, password) async {
         final result = await authService.loginVeterinary(email, password);
@@ -38,12 +31,10 @@ class VeterinaryLoginScreen extends StatelessWidget {
 
         if (!context.mounted) return;
 
-        Navigator.pushReplacement(
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                VeterinaryHomeScreen(userName: result.user.name),
-          ),
+          '/veterinary-home',
+          arguments: result.user.name,
         );
       },
     );
