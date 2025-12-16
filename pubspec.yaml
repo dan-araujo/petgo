@@ -69,6 +69,7 @@ flutter:
     - assets/images/login_delivery.png
     - assets/images/login_partners.png
     - assets/images/login_store.png
+    - assets/images/register/vet_pets.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
