@@ -8,6 +8,7 @@ class LoginBaseScreen extends StatefulWidget {
   final String imagePath;
   final Color backgroundColor;
   final Color buttonColor;
+  final double imageHeight;
   final VoidCallback onRegisterTap;
   final Future<void> Function(String email, String password) onLogin;
 
@@ -18,6 +19,7 @@ class LoginBaseScreen extends StatefulWidget {
     required this.imagePath,
     required this.backgroundColor,
     required this.buttonColor,
+    this.imageHeight = 130.0,
     required this.onRegisterTap,
     required this.onLogin,
   });
@@ -104,7 +106,6 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Cabeçalho com título, subtítulo e imagem
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -134,15 +135,14 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                     const SizedBox(width: 8),
                     Image.asset(
                       widget.imagePath,
-                      height: 120, // 🔹 tamanho fixo
-                      fit: BoxFit.contain, // 🔹 evita expansão infinita
+                      height: widget.imageHeight, 
+                      fit: BoxFit.contain, 
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 32),
 
-                // Formulário
                 Form(
                   key: _formKey,
                   child: Column(
@@ -207,7 +207,6 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
 
                 const SizedBox(height: 8),
 
-                // Botão Entrar
                 SizedBox(
                   width: double.infinity,
                   child: ValueListenableBuilder<bool>(
