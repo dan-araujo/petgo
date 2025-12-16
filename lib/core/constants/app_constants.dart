@@ -5,7 +5,6 @@ class AppConstants {
     'Content-Type': 'application/json',
   };
 
-  static const Duration requestTimeOut = Duration(seconds: 30);
   static const Duration connectionTimeout = Duration(seconds: 30);
 
   static const String loginEndpoint = '/auth/login';
