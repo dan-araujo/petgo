@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class StoreHomeScreen extends StatelessWidget {
+class VeterinaryHomeScreen extends StatelessWidget {
   final String userName;
 
-  const StoreHomeScreen({
+  const VeterinaryHomeScreen({
     super.key,
     required this.userName,
   });
@@ -41,7 +41,7 @@ class StoreHomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Pronto para vender muito?',
+                          'Pronto para cuidar dos animais?',
                           style: const TextStyle( 
                             fontSize: 14,
                             color: Colors.grey,

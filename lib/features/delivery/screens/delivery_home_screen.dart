@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class StoreHomeScreen extends StatelessWidget {
+class DeliveryHomeScreen extends StatelessWidget {
   final String userName;
 
-  const StoreHomeScreen({
+  const DeliveryHomeScreen({
     super.key,
     required this.userName,
   });
@@ -18,14 +18,14 @@ class StoreHomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
-              color: const Color(0xFFFFF3E0),
+              color: const Color(0xFFE5F8E5),
               child: Padding(padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   const Icon(
                     Icons.pets,
                     size: 40,
-                    color: Color(0xFFF28C2B),
+                    color: Color(0xFF85AB6D),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -41,7 +41,7 @@ class StoreHomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Pronto para vender muito?',
+                          'Pronto para fazer entregas que deixam os pets mais felizes?',
                           style: const TextStyle( 
                             fontSize: 14,
                             color: Colors.grey,
