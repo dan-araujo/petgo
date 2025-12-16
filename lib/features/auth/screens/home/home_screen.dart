@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:petgo/features/auth/screens/login/customer_login_screen.dart';
+import 'package:petgo/features/auth/screens/login/delivery_login_screen.dart';
 import 'package:petgo/features/auth/screens/login/store_login_screen.dart';
-import 'package:petgo/features/auth/screens/register/delivery_register_screen.dart';
-import 'package:petgo/features/auth/screens/register/register_veterinary_screen.dart';
+import 'package:petgo/features/auth/screens/login/veterinary_login_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -107,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  const DeliveryRegisterScreen(),
+                                  const DeliveryLoginScreen(),
                             ),
                           );
                         },
@@ -124,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  const VeterinaryRegisterScreen(),
+                                  const VeterinaryLoginScreen(),
                             ),
                           );
                         },
