@@ -64,12 +64,14 @@ flutter:
     - assets/images/pets_welcome.png
     - assets/images/store_login_cat.png
     - assets/images/customer_login_friends.png
-    - assets/images/login_customer.png
-    - assets/images/login_vet.png
-    - assets/images/login_delivery.png
-    - assets/images/login_partners.png
-    - assets/images/login_store.png
+    - assets/images/login/vet.png
+    - assets/images/login/petgo_delivery.png
+    - assets/images/login/store_clerk_smile.png
+    - assets/images/login/man_best_friend.png
     - assets/images/register/vet_pets.png
+    - assets/images/register/customer_girl_dog.png
+    - assets/images/register/store_service.png
+    - assets/images/register/delivery_motorbike.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
