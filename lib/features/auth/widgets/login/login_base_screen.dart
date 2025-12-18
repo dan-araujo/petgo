@@ -9,6 +9,7 @@ class LoginBaseScreen extends StatefulWidget {
   final Color backgroundColor;
   final Color buttonColor;
   final double imageHeight;
+  final bool imageWithBorderRadius;
   final VoidCallback onRegisterTap;
   final Future<void> Function(String email, String password) onLogin;
 
@@ -17,9 +18,10 @@ class LoginBaseScreen extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.imagePath,
+    this.imageHeight = 140.0,
+    this.imageWithBorderRadius = false,
     required this.backgroundColor,
     required this.buttonColor,
-    this.imageHeight = 130.0,
     required this.onRegisterTap,
     required this.onLogin,
   });
@@ -63,20 +65,19 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-    } on UnauthorizedException catch(e) {
+    } on UnauthorizedException catch (e) {
       _showErrorSnackBar(e.message);
-    } on ServerException catch(e) {
+    } on ServerException catch (e) {
       _showErrorSnackBar(e.message);
-    } catch(e) {
+    } catch (e) {
       _showErrorSnackBar('Algo deu errado. Tente novamente.');
-    }
-    finally {
+    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   void _showErrorSnackBar(String message) {
-    if(mounted) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
@@ -86,7 +87,6 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
   @override
   Widget build(BuildContext context) {
     const borderRadius = 16.0;
-
     return Scaffold(
       backgroundColor: widget.backgroundColor,
       body: SafeArea(
@@ -100,12 +100,7 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-                const SizedBox(height: 8),
-
+                const SizedBox(height: 4),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -126,23 +121,29 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                             widget.subtitle,
                             style: const TextStyle(
                               color: Colors.black54,
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Image.asset(
+                    widget.imageWithBorderRadius 
+                      ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        widget.imagePath,
+                        height: widget.imageHeight,
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                    : Image.asset(
                       widget.imagePath,
-                      height: widget.imageHeight, 
-                      fit: BoxFit.contain, 
+                      height: widget.imageHeight,
+                      fit: BoxFit.contain,
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 32),
-
+                const SizedBox(height: 12),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -191,9 +192,7 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton(
@@ -204,9 +203,7 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 SizedBox(
                   width: double.infinity,
                   child: ValueListenableBuilder<bool>(
@@ -215,14 +212,13 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                       final buttonColor = isPasswordValid
                           ? widget.buttonColor
                           : widget.buttonColor.withValues(alpha: 0.6);
-
                       final isEnabled = isPasswordValid && !_isLoading;
-
                       return ElevatedButton(
                         onPressed: isEnabled ? _onLoginPressed : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: buttonColor,
-                          disabledBackgroundColor: widget.buttonColor.withValues(alpha: 0.6),
+                          disabledBackgroundColor: widget.buttonColor
+                              .withValues(alpha: 0.6),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
                           ),
@@ -251,9 +247,7 @@ class _LoginBaseScreenState extends State<LoginBaseScreen> {
                     },
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
