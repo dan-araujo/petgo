@@ -6,9 +6,9 @@ import 'package:petgo/features/customer/screens/customer_home_screen.dart';
 class CustomerRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      '/veterinary-login': (context) => const CustomerLoginScreen(),
-      '/veterinary-register': (context) => const CustomerRegisterScreen(),
-      '/veterinary-home': (context) => CustomerHomeScreen(
+      '/customer-login': (context) => const CustomerLoginScreen(),
+      '/customer-register': (context) => const CustomerRegisterScreen(),
+      '/customer-home': (context) => CustomerHomeScreen(
         userName: ModalRoute.of(context)!.settings.arguments as String,
       ),
     };
