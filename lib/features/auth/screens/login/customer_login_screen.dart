@@ -13,7 +13,7 @@ class CustomerLoginScreen extends StatelessWidget {
     return LoginBaseScreen(
       title: 'Login do Cliente',
       subtitle: 'Acesse sua conta para oferecer o melhor para seu companheiro.',
-      imagePath: 'assets/images/login_customer.png',
+      imagePath: 'assets/images/login/man_best_friend.png',
       backgroundColor: const Color(0xFFE8E1FD),
       buttonColor: const Color(0xFF2596BE),
       onRegisterTap: () {

@@ -13,7 +13,9 @@ class StoreLoginScreen extends StatelessWidget {
     return LoginBaseScreen(
       title: 'Login do Parceiro',
       subtitle: 'Acesse sua conta para gerenciar pedidos e produtos.',
-      imagePath: 'assets/images/login_store.png',
+      imagePath: 'assets/images/login/store_clerk_smile.png',
+      imageHeight: 230.0,
+      imageWithBorderRadius: true,
       backgroundColor: const Color(0xFFFFF7F4),
       buttonColor: const Color(0xFFEC5050),
       onRegisterTap: () {

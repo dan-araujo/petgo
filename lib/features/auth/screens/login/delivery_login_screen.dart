@@ -13,8 +13,8 @@ class DeliveryLoginScreen extends StatelessWidget {
     return LoginBaseScreen(
       title: 'Login do Entregador',
       subtitle: 'Sua conta para entregar alegria aos tutores de pets.',
-      imagePath: 'assets/images/login_delivery.png',
-      imageHeight: 190,
+      imagePath: 'assets/images/login/petgo_delivery.png',
+      imageHeight: 220,
       backgroundColor: const Color(0xFFE5F8E5),
       buttonColor: const Color(0xFF85AB6D),
       onRegisterTap: () {

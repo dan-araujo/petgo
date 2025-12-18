@@ -13,8 +13,8 @@ class VeterinaryLoginScreen extends StatelessWidget {
     return LoginBaseScreen(
       title: 'Login do Veterinário',
       subtitle: 'Conecte-se e transforme vidas de animais de estimação.',
-      imagePath: 'assets/images/login_vet.png',
-      imageHeight: 190,
+      imagePath: 'assets/images/login/vet.png',
+      imageHeight: 220,
       backgroundColor: const Color(0xFFFFF3E0),
       buttonColor: const Color(0xFFF28C2B),
       onRegisterTap: () {
