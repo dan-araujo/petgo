@@ -46,6 +46,11 @@ class _StoreRegisterScreenState extends State<StoreRegisterScreen> {
     if (!mounted) return;
     if (result['success'] == true) {
       showAppSnackBar(context, 'Cadastro realizado com sucesso!');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/store-login',
+        (route) => false,
+      );
       _formKey.currentState!.reset();
     } else {
       final message = getFriendlyErrorMessage(
@@ -60,74 +65,106 @@ class _StoreRegisterScreenState extends State<StoreRegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro de Parceiros')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              AuthFormField(
-                controller: _nameController,
-                label: 'Nome do Estabelecimento',
-                validator: validateStoreName,
+      backgroundColor: const Color(0xFFFFF7F4),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Junte-se à nossa rede e alcance mais clientes',
+                    style: TextStyle(fontSize: 14, color: Color(0xFF000000)),
+                  ),
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/register/store_service.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  AuthFormField(
+                    controller: _nameController,
+                    label: 'Nome do Estabelecimento',
+                    validator: validatePersonName,
+                    focusedBorderColor: const Color(0xFFEC5050),
+                  ),
+                  AuthFormField(
+                    controller: _emailController,
+                    label: 'E-mail',
+                    inputType: TextInputType.emailAddress,
+                    validator: validateEmail,
+                    focusedBorderColor: const Color(0xFFEC5050),
+                  ),
+                  AuthFormField(
+                    controller: _phoneController,
+                    label: 'Telefone',
+                    inputType: TextInputType.phone,
+                    validator: validatePhone,
+                    focusedBorderColor: const Color(0xFFEC5050),
+                  ),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedCategory,
+                    decoration: const InputDecoration(
+                      labelText: 'Categoria',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _categories
+                        .map(
+                          (category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(
+                              category == 'PETSHOP'
+                                  ? 'Pet Shop'
+                                  : 'Casa de Ração',
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => _selectedCategory = value),
+                    validator: validateCategory,
+                  ),
+                  AuthFormField(
+                    controller: _cnpjController,
+                    label: 'CNPJ',
+                    inputType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'CNPJ obrigatório';
+                      }
+                      return isValidCNPJ(value) ? null : 'CNPJ inválido';
+                    },
+                    focusedBorderColor: const Color(0xFFEC5050),
+                  ),
+                  AuthFormField(
+                    controller: _passwordController,
+                    label: 'Senha',
+                    obscure: true,
+                    validator: validatePassword,
+                    focusedBorderColor: const Color(0xFFEC5050),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: SubmitButton(
+                      isLoading: _isLoading,
+                      label: 'Cadastrar',
+                      color: const Color(0xFFEC5050),
+                      onPressed: _submitForm,
+                    ),
+                  ),
+                ],
               ),
-              AuthFormField(
-                controller: _emailController,
-                label: 'E-mail',
-                inputType: TextInputType.emailAddress,
-                validator: (v) =>
-                    v != null && isValidEmail(v) ? null : 'Email inválido',
-              ),
-              AuthFormField(
-                controller: _phoneController,
-                label: 'Telefone',
-                inputType: TextInputType.phone,
-                validator: validatePhone,
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                  border: OutlineInputBorder(),
-                ),
-                items: _categories
-                    .map(
-                      (category) => DropdownMenuItem(
-                        value: category,
-                        child: Text(
-                          category == 'PETSHOP' ? 'Pet Shop' : 'Casa de Ração',
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => _selectedCategory = value),
-                validator: validateCategory,
-              ),
-              AuthFormField(
-                controller: _cnpjController,
-                label: 'CNPJ',
-                inputType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'CNPJ obrigatório';
-                  return isValidCNPJ(value) ? null : 'CNPJ inválido';
-                },
-              ),
-              AuthFormField(
-                controller: _passwordController,
-                label: 'Senha',
-                obscure: true,
-                validator: validatePassword,
-              ),
-              const SizedBox(height: 20),
-              SubmitButton(
-                isLoading: _isLoading,
-                label: 'Cadastrar Loja',
-                color: Colors.teal,
-                onPressed: _submitForm,
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -42,6 +42,11 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
     if (!mounted) return;
     if (result['success'] == true) {
       showAppSnackBar(context, 'Cadastro realizado com sucesso!');
+      Navigator.pushNamedAndRemoveUntil(
+        context, 
+        '/delivery-login', 
+        (route) => false,
+        );
       _formKey.currentState!.reset();
     } else {
       final message = getFriendlyErrorMessage(
@@ -56,53 +61,82 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro de Entregador')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              AuthFormField(
-                controller: _nameController,
-                label: 'Nome Completo',
-                validator: validatePersonName,
+      backgroundColor: const Color(0xFFE5F8E5),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Comece a entregar com a gente e ganhe enquanto ajuda pets',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/images/register/delivery_motorbike.png',
+                    height: 190,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 8),
+                  AuthFormField(
+                    controller: _nameController,
+                    label: 'Nome Completo',
+                    validator: validatePersonName,
+                    focusedBorderColor: const Color(0xFF85AB6D),
+                  ),
+                  AuthFormField(
+                    controller: _emailController,
+                    label: 'E-mail',
+                    inputType: TextInputType.emailAddress,
+                    validator: validateEmail,
+                    focusedBorderColor: const Color(0xFF85AB6D),
+                  ),
+                  AuthFormField(
+                    controller: _phoneController,
+                    label: 'Telefone',
+                    inputType: TextInputType.phone,
+                    validator: validatePhone,
+                    focusedBorderColor: const Color(0xFF85AB6D),
+                  ),
+                  AuthFormField(
+                    controller: _cpfController,
+                    label: 'CPF',
+                    inputType: TextInputType.number,
+                    isOptional: true,
+                    validator: (v) => (v == null || v.isEmpty)
+                        ? null
+                        : (isValidCPF(v) ? null : 'CPF inválido'),
+                    focusedBorderColor: const Color(0xFF85AB6D),
+                  ),
+                  AuthFormField(
+                    controller: _passwordController,
+                    label: 'Senha',
+                    obscure: true,
+                    validator: validatePassword,
+                    focusedBorderColor: const Color(0xFF85AB6D),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: SubmitButton(
+                      isLoading: _isLoading,
+                      label: 'Cadastrar',
+                      color: const Color(0xFF85AB6D),
+                      onPressed: _submitForm,
+                    ),
+                  ),
+                ],
               ),
-              AuthFormField(
-                controller: _emailController,
-                label: 'E-mail',
-                inputType: TextInputType.emailAddress,
-                validator: validateEmail,
-              ),
-              AuthFormField(
-                controller: _phoneController,
-                label: 'Telefone',
-                inputType: TextInputType.phone,
-                validator: validatePhone,
-              ),
-              AuthFormField(
-                controller: _cpfController,
-                label: 'CPF',
-                inputType: TextInputType.number,
-                isOptional: true,
-                validator: (v) => (v == null || v.isEmpty)
-                    ? null
-                    : (isValidCPF(v) ? null : 'CPF inválido'),
-              ),
-              AuthFormField(
-                controller: _passwordController,
-                label: 'Senha',
-                obscure: true,
-                validator: validatePassword,
-              ),
-              const SizedBox(height: 20),
-              SubmitButton(
-                isLoading: _isLoading,
-                label: 'Cadastrar Entregador',
-                color: Colors.teal,
-                onPressed: _submitForm,
-              ),
-            ],
+            ),
           ),
         ),
       ),
