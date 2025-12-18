@@ -81,12 +81,12 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 6),
                   const Text(
                     'Cadastre-se para oferecer seus serviços',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Color(0xFF000000),
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   Image.asset(
