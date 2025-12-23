@@ -3,6 +3,7 @@ import 'package:petgo/features/auth/screens/login/customer_login_screen.dart';
 import 'package:petgo/features/auth/screens/login/delivery_login_screen.dart';
 import 'package:petgo/features/auth/screens/login/store_login_screen.dart';
 import 'package:petgo/features/auth/screens/login/veterinary_login_screen.dart';
+import 'package:petgo/features/auth/screens/verification_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -74,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CustomerLoginScreen(),
+                              builder: (context) => const VerificationScreen(email: 'danielpluguin@gmail.com', userType: 'customer'),
                             ),
                           );
                         },
