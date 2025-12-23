@@ -5,7 +5,8 @@ import 'package:petgo/core/constants/app_constants.dart';
 class ApiService {
   static const String _baseUrl = AppConstants.baseUrl;
   static const Duration _timeout = AppConstants.connectionTimeout;
-  static const Map<String, String> _defaultHeaders = AppConstants.defaultHeaders;
+  static const Map<String, String> _defaultHeaders =
+      AppConstants.defaultHeaders;
 
   static Future<Map<String, dynamic>> _request(
     String method,
@@ -13,49 +14,68 @@ class ApiService {
     Map<String, dynamic>? requestData,
     Map<String, String>? requestHeaders,
   }) async {
-    try {
-      final url = Uri.parse("$_baseUrl$endpoint");
+    int attempt = 0;
+    const maxAttempts = 3;
+    Duration delay = Duration(milliseconds: 500);
 
-      final customHeaders = {
-           ..._defaultHeaders,
-           ...?requestHeaders,
-      };
+    while (attempt < maxAttempts) {
+      try {
+        final url = Uri.parse("$_baseUrl$endpoint");
 
-      late http.Response response;
+        final customHeaders = {..._defaultHeaders, ...?requestHeaders};
 
-      switch (method.toUpperCase()) {
-        case 'POST':
-          response = await http
-              .post(url, headers: customHeaders, body: jsonEncode(requestData))
-              .timeout(_timeout);
-          break;
-        case 'GET':
-          response = await http
-              .get(url, headers: customHeaders)
-              .timeout(_timeout);
-          break;
-        case 'PATCH':
-          response = await http
-              .patch(
-                url,
-                headers: customHeaders,
-                body: jsonEncode(requestData),
-              )
-              .timeout(_timeout);
-          break;
-        case 'DELETE':
-          response = await http
-              .delete(url, headers: customHeaders)
-              .timeout(_timeout);
-          break;
-        default:
-          throw Exception('Método HTTP não suportado: $method');
+        late http.Response response;
+
+        switch (method.toUpperCase()) {
+          case 'POST':
+            response = await http
+                .post(
+                  url,
+                  headers: customHeaders,
+                  body: jsonEncode(requestData),
+                )
+                .timeout(_timeout);
+            break;
+          case 'GET':
+            response = await http
+                .get(url, headers: customHeaders)
+                .timeout(_timeout);
+            break;
+          case 'PATCH':
+            response = await http
+                .patch(
+                  url,
+                  headers: customHeaders,
+                  body: jsonEncode(requestData),
+                )
+                .timeout(_timeout);
+            break;
+          case 'DELETE':
+            response = await http
+                .delete(url, headers: customHeaders)
+                .timeout(_timeout);
+            break;
+          default:
+            throw Exception('Método HTTP não suportado: $method');
+        }
+
+        return _handleResponse(response);
+      } catch (e) {
+        attempt++;
+
+        if (attempt >= maxAttempts) {
+          return {
+            'success': false,
+            'message': 'Erro de conexão após $maxAttempts tentativas: $e',
+          };
+        }
+
+        await Future.delayed(delay);
+        delay = Duration(milliseconds: delay.inMilliseconds * 2);
       }
-
-      return _handleResponse(response);
-    } catch (e) {
-      return {'success': false, 'message': 'Erro de conexão: $e'};
     }
+
+    return {'success': false, 'message': 'Erro desconhecido'};
   }
 
   static Future<Map<String, dynamic>> post({
