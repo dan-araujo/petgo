@@ -6,13 +6,24 @@ class AppConstants {
   };
 
   static const Duration connectionTimeout = Duration(seconds: 60);
-  static const String loginEndpoint = '$baseUrl/auth/login';
-  static const String sendCodeEndpoint = '$baseUrl/auth/send-verification-code';
-  static const String verifyEmailEndpoint = '$baseUrl/auth/verify-email';
-  static const String resendCodeEndpoint = '$baseUrl/auth/resend-verification-code';
+  static const String loginEndpoint = '/auth/login';
+  static const String sendCodeEndpoint = '/auth/send-verification-code';
+  static const String verifyEmailEndpoint = '/auth/verify-email';
+  static const String resendCodeEndpoint = '/auth/resend-verification-code';
 
   static String registerByType(String userType) {
-    return '$baseUrl/$userType/register';
+    switch (userType) {
+      case 'customer':
+        return '/customers/register';
+      case 'store':
+        return '/stores/register';
+      case 'delivery':
+        return '/delivery/register';
+      case 'veterinary':
+        return '/veterinaries/register';
+      default:
+        return '/$userType/register';
+    }
   }
 
   static String loginByType(String userType) {
