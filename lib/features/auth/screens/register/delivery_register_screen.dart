@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/core/constants/app_constants.dart';
 import 'package:petgo/core/services/api_service.dart';
 import 'package:petgo/core/utils/http_error_handler.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
 import 'package:petgo/features/auth/widgets/auth_form_field.dart';
+import 'package:petgo/routes/auth_routes.dart';
 
 class DeliveryRegisterScreen extends StatefulWidget {
   const DeliveryRegisterScreen({super.key});
@@ -23,39 +25,64 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
   bool _isLoading = false;
 
   void _submitForm() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() => _isLoading = true);
 
-    final result = await ApiService.post(
-      endpoint: '/delivery/register',
-      data: {
-        "name": _nameController.text.trim(),
-        "email": _emailController.text.trim(),
-        "phone": _phoneController.text.trim(),
-        "password": _passwordController.text.trim(),
-        if (_cpfController.text.trim().isNotEmpty)
-          "cpf": _cpfController.text.trim(),
-      },
-    );
-
-    if (!mounted) return;
-    if (result['success'] == true) {
-      showAppSnackBar(context, 'Cadastro realizado com sucesso!');
-      Navigator.pushNamedAndRemoveUntil(
-        context, 
-        '/delivery-login', 
-        (route) => false,
-        );
-      _formKey.currentState!.reset();
-    } else {
-      final message = getFriendlyErrorMessage(
-        result['statusCode'] ?? 400,
-        result['message'],
+    try {
+      final result = await ApiService.post(
+        endpoint: AppConstants.registerByType('delivery'),
+        data: {
+          "name": _nameController.text.trim(),
+          "email": _emailController.text.trim(),
+          "phone": _phoneController.text.trim(),
+          "password": _passwordController.text.trim(),
+          if (_cpfController.text.trim().isNotEmpty)
+            "cpf": _cpfController.text.trim(),
+        },
       );
-      showAppSnackBar(context, message, isError: true);
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        final data = result['data'];
+
+        if (data['status'] == 'new_sent_code' ||
+            data['status'] == 'pending_code') {
+          AuthRoutes.toVerification(
+            context,
+            email: data['email'],
+            userType: 'delivery',
+          );
+          return;
+        }
+
+        showAppSnackBar(context, 'Cadastro realizado com sucesso!');
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/delivery-login',
+          (route) => false,
+        );
+        _formKey.currentState!.reset();
+      } else {
+        final message = getFriendlyErrorMessage(
+          result['statusCode'] ?? 400,
+          result['message'],
+        );
+        showAppSnackBar(context, message, isError: true);
+      }
+      setState(() => _isLoading = false);
+    } catch (e) {
+      if (!mounted) return;
+
+      showAppSnackBar(context, 'Erro ao cadastrar: $e', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -75,10 +102,7 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     'Comece a entregar com a gente e ganhe enquanto ajuda pets',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF000000),
-                    ),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF000000)),
                   ),
                   Image.asset(
                     'assets/images/register/delivery_motorbike.png',
