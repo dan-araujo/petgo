@@ -21,6 +21,8 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _selectedCategory;
+  final List<String> _categories = ['SOLO', 'CLINIC'];
   bool _isLoading = false;
 
   @override
@@ -47,6 +49,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
           "password": _passwordController.text.trim(),
+          "category": _selectedCategory,
         },
       );
 
@@ -59,7 +62,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
           AuthRoutes.toVerification(
             context,
             email: data['email'],
-            userType: 'customer',
+            userType: 'veterinary',
           );
           return;
         }
@@ -117,7 +120,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
                   const SizedBox(height: 8),
                   AuthFormField(
                     controller: _nameController,
-                    label: 'Nome do Estabelecimento',
+                    label: 'Nome',
                     validator: validatePersonName,
                     focusedBorderColor: const Color(0xFFFF6B35),
                   ),
@@ -132,7 +135,42 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
                     controller: _phoneController,
                     label: 'Telefone',
                     inputType: TextInputType.phone,
+                    validator: validatePhone,
                     focusedBorderColor: const Color(0xFFFF6B35),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFFF6B35),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      items: _categories
+                          .map(
+                            (category) => DropdownMenuItem(
+                              value: category,
+                              child: Text(
+                                category == 'CLINIC'
+                                    ? 'Clínica Veterinária'
+                                    : 'Veterinário Autônomo',
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategory = value),
+                      validator: validateCategory,
+                    ),
                   ),
                   AuthFormField(
                     controller: _passwordController,
