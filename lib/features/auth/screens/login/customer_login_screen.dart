@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
 import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
+import 'package:petgo/routes/auth_routes.dart';
 
 class CustomerLoginScreen extends StatelessWidget {
   const CustomerLoginScreen({super.key});
@@ -20,21 +21,39 @@ class CustomerLoginScreen extends StatelessWidget {
         Navigator.pushNamed(context, '/customer-register');
       },
       onLogin: (email, password) async {
-        final result = await authService.loginCustomer(email, password);
-        await TokenService.saveToken(result.accessToken);
-        await TokenService.saveUser(
-          result.user.id,
-          result.user.name,
-          result.user.email,
-        );
+        try {
+          final result = await authService.loginCustomer(email, password);
+          await TokenService.saveToken(result.accessToken);
+          await TokenService.saveUser(
+            result.user.id,
+            result.user.name,
+            result.user.email,
+          );
 
-        if (!context.mounted) return;
+          if (!context.mounted) return;
 
-        Navigator.pushReplacementNamed(
-          context,
-          '/customer-home',
-          arguments: result.user.name,
-        );
+          Navigator.pushReplacementNamed(
+            context,
+            '/customer-home',
+            arguments: result.user.name,
+          );
+        } on VerificationPendingException {
+          if (!context.mounted) return;
+
+          AuthRoutes.toVerification(
+            context,
+            email: email,
+            userType: 'customer',
+          );
+        } catch (e) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao fazer login: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       },
     );
   }
