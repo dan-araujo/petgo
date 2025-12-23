@@ -2,16 +2,19 @@ class LoginResponse {
   final String accessToken;
   final UserData user;
 
-  LoginResponse({
-    required this.accessToken,
-    required this.user,
-  });
+  LoginResponse({required this.accessToken, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] ?? {};
+
     return LoginResponse(
-      accessToken: json['data']['access_token'] ?? '', 
-      user: UserData.fromJson(json['data']['user']),
-      );
+      accessToken: data['access_token'] ?? '',
+      user: UserData.fromJson(data['user'] ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'access_token': accessToken, 'user': user.toJson()};
   }
 }
 
@@ -19,7 +22,7 @@ class UserData {
   final String id;
   final String name;
   final String email;
-  final String category;
+  final String? category;
 
   UserData({
     required this.id,
@@ -30,10 +33,14 @@ class UserData {
 
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-      id: json['data'] ?? '', 
-      name: json['name'] ?? '', 
-      email: json['email'] ?? '', 
-      category: json['category'] ?? '',
-      );
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      category: json['category'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'email': email, 'category': category};
   }
 }
