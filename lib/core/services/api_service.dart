@@ -14,68 +14,42 @@ class ApiService {
     Map<String, dynamic>? requestData,
     Map<String, String>? requestHeaders,
   }) async {
-    int attempt = 0;
-    const maxAttempts = 3;
-    Duration delay = Duration(milliseconds: 500);
+    try {
+      final url = Uri.parse("$_baseUrl$endpoint");
 
-    while (attempt < maxAttempts) {
-      try {
-        final url = Uri.parse("$_baseUrl$endpoint");
+      final customHeaders = {..._defaultHeaders, ...?requestHeaders};
 
-        final customHeaders = {..._defaultHeaders, ...?requestHeaders};
+      late http.Response response;
 
-        late http.Response response;
-
-        switch (method.toUpperCase()) {
-          case 'POST':
-            response = await http
-                .post(
-                  url,
-                  headers: customHeaders,
-                  body: jsonEncode(requestData),
-                )
-                .timeout(_timeout);
-            break;
-          case 'GET':
-            response = await http
-                .get(url, headers: customHeaders)
-                .timeout(_timeout);
-            break;
-          case 'PATCH':
-            response = await http
-                .patch(
-                  url,
-                  headers: customHeaders,
-                  body: jsonEncode(requestData),
-                )
-                .timeout(_timeout);
-            break;
-          case 'DELETE':
-            response = await http
-                .delete(url, headers: customHeaders)
-                .timeout(_timeout);
-            break;
-          default:
-            throw Exception('Método HTTP não suportado: $method');
-        }
-
-        return _handleResponse(response);
-      } catch (e) {
-        attempt++;
-
-        if (attempt >= maxAttempts) {
-          return {
-            'success': false,
-            'message': 'Erro de conexão após $maxAttempts tentativas: $e',
-          };
-        }
-
-        await Future.delayed(delay);
-        delay = Duration(milliseconds: delay.inMilliseconds * 2);
+      switch (method.toUpperCase()) {
+        case 'POST':
+          response = await http
+              .post(url, headers: customHeaders, body: jsonEncode(requestData))
+              .timeout(_timeout);
+          break;
+        case 'GET':
+          response = await http
+              .get(url, headers: customHeaders)
+              .timeout(_timeout);
+          break;
+        case 'PATCH':
+          response = await http
+              .patch(url, headers: customHeaders, body: jsonEncode(requestData))
+              .timeout(_timeout);
+          break;
+        case 'DELETE':
+          response = await http
+              .delete(url, headers: customHeaders)
+              .timeout(_timeout);
+          break;
+        default:
+          throw Exception('Método HTTP não suportado: $method');
       }
-    }
 
-    return {'success': false, 'message': 'Erro desconhecido'};
+      return _handleResponse(response);
+    } catch (e) {
+      return {'success': false, 'message': 'Erro de conexão: $e'};
+    }
   }
 
   static Future<Map<String, dynamic>> post({
