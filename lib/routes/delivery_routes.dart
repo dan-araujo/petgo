@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:petgo/features/auth/screens/login/delivery_login_screen.dart';
 import 'package:petgo/features/auth/screens/register/delivery_register_screen.dart';
 import 'package:petgo/features/delivery/screens/delivery_home_screen.dart';
+import 'package:petgo/routes/auth_routes.dart';
 
 class DeliveryRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      '/delivery-login': (context) => const DeliveryLoginScreen(),
-      '/delivery-register': (context) => const DeliveryRegisterScreen(),
+      AuthRoutes.deliveryLogin: (context) => const DeliveryLoginScreen(),
+      AuthRoutes.deliveryRegister: (context) => const DeliveryRegisterScreen(),
       '/delivery-home': (context) => DeliveryHomeScreen(
         userName: ModalRoute.of(context)!.settings.arguments as String,
       ),
