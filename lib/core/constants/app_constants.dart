@@ -5,9 +5,17 @@ class AppConstants {
     'Content-Type': 'application/json',
   };
 
-  static const Duration connectionTimeout = Duration(seconds: 30);
+  static const Duration connectionTimeout = Duration(seconds: 60);
+  static const String loginEndpoint = '$baseUrl/auth/login';
+  static const String sendCodeEndpoint = '$baseUrl/auth/send-verification-code';
+  static const String verifyEmailEndpoint = '$baseUrl/auth/verify-email';
+  static const String resendCodeEndpoint = '$baseUrl/auth/resend-verification-code';
 
-  static const String loginEndpoint = '/auth/login';
-  static const String sendCodeEndpoint = '/auth/send-verification-code';
-  static const String verifyCodeEndpoint = '/auth/verify-code';
+  static String registerByType(String userType) {
+    return '$baseUrl/$userType/register';
+  }
+
+  static String loginByType(String userType) {
+    return '$loginEndpoint/$userType';
+  }
 }
