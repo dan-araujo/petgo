@@ -5,18 +5,31 @@ class LoginResponse {
   LoginResponse({required this.accessToken, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    // ✅ Backend retorna: { success: true, data: { status, message, data: { access_token, user } } }
-    final authResponse = json['data'] ?? {};
-    final loginData = authResponse['data'] ?? {};
-
     print('📑 === PARSE LOGIN RESPONSE ===');
     print('JSON completo: $json');
+    print('JSON keys: ${json.keys.toList()}');
+    
+    // ✅ Backend retorna: { success: true, data: { access_token, user: {...} } }
+    final authResponse = json['data'] ?? {};
     print('AuthResponse: $authResponse');
-    print('LoginData: $loginData');
+    print('AuthResponse type: ${authResponse.runtimeType}');
+    print('AuthResponse keys: ${authResponse is Map ? (authResponse as Map).keys.toList() : "N/A"}');
+
+    // ✅ Token pode estar direto em 'access_token' ou dentro de 'data'
+    final accessToken = 
+        authResponse['access_token'] as String? ?? 
+        (authResponse['data'] is Map ? authResponse['data']['access_token'] : null) ?? 
+        '';
+    
+    final userData = authResponse['user'] ?? authResponse['data']?['user'] ?? {};
+    
+    print('AccessToken: ${accessToken.substring(0, 20)}...');
+    print('UserData: $userData');
+    print('---');
 
     return LoginResponse(
-      accessToken: loginData['access_token'] ?? '',
-      user: UserData.fromJson(loginData['user'] ?? {}),
+      accessToken: accessToken,
+      user: UserData.fromJson(userData is Map ? userData : {}),
     );
   }
 
@@ -39,6 +52,10 @@ class UserData {
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
+    print('👤 === PARSE USER DATA ===');
+    print('UserData JSON: $json');
+    print('UserData keys: ${json.keys.toList()}');
+    
     return UserData(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
