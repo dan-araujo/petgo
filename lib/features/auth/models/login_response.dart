@@ -5,11 +5,18 @@ class LoginResponse {
   LoginResponse({required this.accessToken, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] ?? {};
+    // ✅ Backend retorna: { success: true, data: { status, message, data: { access_token, user } } }
+    final authResponse = json['data'] ?? {};
+    final loginData = authResponse['data'] ?? {};
+
+    print('📑 === PARSE LOGIN RESPONSE ===');
+    print('JSON completo: $json');
+    print('AuthResponse: $authResponse');
+    print('LoginData: $loginData');
 
     return LoginResponse(
-      accessToken: data['access_token'] ?? '',
-      user: UserData.fromJson(data['user'] ?? {}),
+      accessToken: loginData['access_token'] ?? '',
+      user: UserData.fromJson(loginData['user'] ?? {}),
     );
   }
 
