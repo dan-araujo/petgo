@@ -36,25 +36,34 @@ class _VerificationScreenState extends State<VerificationScreen> {
       ),
       body: BlocListener<VerificationBloc, VerificationState>(
         listener: (context, state) {
-          // ✅ APENAS navega se VerificationSuccess
           if (state is VerificationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Email verificado com sucesso!')),
             );
             final loginRoute = AuthRoutes.getLoginRoute(widget.userType);
             Navigator.of(context).pushReplacementNamed(loginRoute);
-          }
-          // ✅ APENAS mostra erro se VerificationError
-          else if (state is VerificationError) {
+          } else if (state is VerificationError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(state.message)),
+                  ],
+                ),
+                backgroundColor: const Color(
+                  0xFFEF4444,
+                ),
+                duration: const Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+              ),
             );
-          }
-          // ✅ Rate limit de resend
-          else if (state is ResendCodeRateLimit) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+          } else if (state is ResendCodeRateLimit) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
           // ✅ Sucesso ao reenviar
           else if (state is ResendCodeSuccess) {
@@ -64,9 +73,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
           }
           // ✅ Erro ao reenviar
           else if (state is ResendCodeError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: SingleChildScrollView(
@@ -75,8 +84,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              Image.asset('assets/images/verification_lock.png',
-                  height: 120, width: 120),
+              Image.asset(
+                'assets/images/verification_lock.png',
+                height: 120,
+                width: 120,
+              ),
               const SizedBox(height: 32),
               const Text(
                 '🔐 Confirmação de Email',
@@ -129,12 +141,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           ? null
                           : () {
                               context.read<VerificationBloc>().add(
-                                    VerifyCodeEvent(
-                                      email: widget.email,
-                                      code: _verificationCode,
-                                      userType: widget.userType,
-                                    ),
-                                  );
+                                VerifyCodeEvent(
+                                  email: widget.email,
+                                  code: _verificationCode,
+                                  userType: widget.userType,
+                                ),
+                              );
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF208B8D),
@@ -148,8 +160,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation(Colors.white),
+                                valueColor: AlwaysStoppedAnimation(
+                                  Colors.white,
+                                ),
                                 strokeWidth: 2,
                               ),
                             )
@@ -182,11 +195,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             ? null
                             : () {
                                 context.read<VerificationBloc>().add(
-                                      ResendCodeEvent(
-                                        email: widget.email,
-                                        userType: widget.userType,
-                                      ),
-                                    );
+                                  ResendCodeEvent(
+                                    email: widget.email,
+                                    userType: widget.userType,
+                                  ),
+                                );
                               },
                         child: Text(
                           'Enviar novamente',
@@ -238,4 +251,3 @@ class _VerificationScreenState extends State<VerificationScreen> {
     );
   }
 }
-

@@ -17,26 +17,24 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
     VerifyCodeEvent event,
     Emitter<VerificationState> emit,
   ) async {
+    print('🔹 _onVerifyCode: iniciando');
     emit(VerificationLoading());
 
     try {
-      // 🔥 CHAMADA AO BACKEND
-      // IMPORTANTE: AuthService.verifyCode DEVE lançar exceção
-      // quando success == false (código inválido)
-      await AuthService.verifyCode(
-        event.email,
-        event.code,
-        event.userType,
-      );
+      print('🔹 _onVerifyCode: chamando verifyCode com code=${event.code}');
 
-      // ✅ SÓ CHEGA AQUI SE O BACKEND CONFIRMOU O CÓDIGO
+      await AuthService.verifyCode(event.email, event.code, event.userType);
+
+      print('✅ _onVerifyCode: sucesso! emitindo VerificationSuccess');
       emit(VerificationSuccess());
     } on ServerException catch (e) {
-      // ❌ Erro retornado pelo backend (ex: código inválido)
+      print('🔴 _onVerifyCode: ServerException: ${e.message}');
+      // ✅ Use a mensagem da exceção (que vem do backend)
       emit(VerificationError(e.message));
     } catch (e) {
-      // ❌ Qualquer erro inesperado
-      emit(VerificationError('Erro inesperado: $e'));
+      print('🔴 _onVerifyCode: catch genérico: $e');
+      // ✅ Mensagem genérica amigável
+      emit(VerificationError('Erro ao verificar código. Tente novamente.'));
     }
   }
 
@@ -47,10 +45,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
     emit(ResendCodeLoading());
 
     try {
-      await AuthService.resendVerificationCode(
-        event.email,
-        event.userType,
-      );
+      await AuthService.resendVerificationCode(event.email, event.userType);
 
       // ✅ Reenvio deu certo
       emit(ResendCodeSuccess());
@@ -61,7 +56,13 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
       // ⏱️ Rate limit controlado pelo backend
       emit(ResendCodeRateLimit(e.message));
     } on ServerException catch (e) {
-      emit(ResendCodeError(e.message));
+      print('🔴 _onVerifyCode: ServerException: ${e.message}');
+      String errorMessage = e.message;
+      if (e.message.contains('inválido')) {
+        errorMessage = '❌ Código inválido. Verifique os dígitos.';
+      }
+
+      emit(VerificationError(errorMessage));
     } catch (e) {
       emit(ResendCodeError('Erro inesperado: $e'));
     }

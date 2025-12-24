@@ -3,7 +3,7 @@ import 'package:petgo/core/services/api_service.dart';
 import 'package:petgo/features/auth/models/login_response.dart';
 
 class AuthService {
-  AuthService._();
+  AuthService();
 
   static Future<LoginResponse> loginStore(String email, String password) async {
     return _login(AppConstants.loginByType('store'), email, password);
@@ -33,10 +33,12 @@ class AuthService {
       );
 
       print('🔍 RESPOSTA COMPLETA DO BACK-END: $response');
-    print('🔍 Type of response: ${response.runtimeType}');
-    print('🔍 Response keys: ${response.keys}');
-    print('🔍 response[success] = ${response['success']}');
-    print('🔍 Type of response[success] = ${response['success'].runtimeType}');
+      print('🔍 Type of response: ${response.runtimeType}');
+      print('🔍 Response keys: ${response.keys}');
+      print('🔍 response[success] = ${response['success']}');
+      print(
+        '🔍 Type of response[success] = ${response['success'].runtimeType}',
+      );
 
       if (response['success'] == true) {
         final data = response['data'];
@@ -82,36 +84,33 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>> verifyCode(
+  static Future<void> verifyCode(
     String email,
     String code,
     String userType,
   ) async {
     try {
+      print('🔹 verifyCode: iniciando com código=$code');
+
       final response = await ApiService.post(
         endpoint: AppConstants.verifyEmailEndpoint,
         data: {'email': email, 'code': code, 'type': userType},
       );
 
-      print('📋 Resposta de verificação: $response');
+      print('✅ verifyCode: resposta recebida: $response');
 
-      // ✅ VERIFICA CORRETAMENTE
-      if (response['success'] == true) {
-        return {
-          'success': true,
-          'message': response['message'] ?? 'Email verificado',
-          'email': response['email'] ?? email,
-        };
+      // ✅ CORRETO: checa success na raiz (graças ao interceptor corrigido)
+      if (response['success'] != true) {
+        print('❌ verifyCode: código inválido');
+        throw ServerException(
+          response['message'] ?? 'Código de verificação inválido ou expirado',
+        );
       }
 
-      // ✅ SE NÃO FOR SUCESSO, RETORNA ERRO E NÃO LANÇA EXCEPTION
-      return {
-        'success': false,
-        'message': response['message'] ?? 'Código inválido ou expirado',
-        'email': email,
-      };
+      print('✅ verifyCode: código válido!');
+    } on ServerException {
+      rethrow;
     } catch (e) {
-      print('❌ Erro ao verificar código: $e');
       throw ServerException('Erro ao verificar código: $e');
     }
   }
@@ -174,10 +173,7 @@ class VerificationPendingException implements Exception {
   final String email;
   final String message;
 
-  VerificationPendingException({
-    required this.email,
-    required this.message,
-  });
+  VerificationPendingException({required this.email, required this.message});
 
   @override
   String toString() => message;

@@ -9,7 +9,6 @@ class CustomerLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
 
     return LoginBaseScreen(
       title: 'Login do Cliente',
@@ -22,7 +21,7 @@ class CustomerLoginScreen extends StatelessWidget {
       },
       onLogin: (email, password) async {
         try {
-          final result = await authService.loginCustomer(email, password);
+          final result = await AuthService.loginCustomer(email, password);
           await TokenService.saveToken(result.accessToken);
           await TokenService.saveUser(
             result.user.id,
