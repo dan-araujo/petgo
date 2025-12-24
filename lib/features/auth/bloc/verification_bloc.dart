@@ -29,11 +29,9 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
       emit(VerificationSuccess());
     } on ServerException catch (e) {
       print('🔴 _onVerifyCode: ServerException: ${e.message}');
-      // ✅ Use a mensagem da exceção (que vem do backend)
       emit(VerificationError(e.message));
     } catch (e) {
       print('🔴 _onVerifyCode: catch genérico: $e');
-      // ✅ Mensagem genérica amigável
       emit(VerificationError('Erro ao verificar código. Tente novamente.'));
     }
   }
@@ -42,29 +40,27 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
     ResendCodeEvent event,
     Emitter<VerificationState> emit,
   ) async {
+    print('📧 _onResendCode: iniciando');
     emit(ResendCodeLoading());
 
     try {
+      print('📧 _onResendCode: chamando resendVerificationCode');
+
       await AuthService.resendVerificationCode(event.email, event.userType);
 
-      // ✅ Reenvio deu certo
+      print('✅ _onResendCode: sucesso! emitindo ResendCodeSuccess');
       emit(ResendCodeSuccess());
 
-      // 🔁 Reinicia o contador após reenviar
       add(const StartCountdownEvent());
     } on RateLimitException catch (e) {
-      // ⏱️ Rate limit controlado pelo backend
+      print('⏱️ _onResendCode: RateLimitException: ${e.message}');
       emit(ResendCodeRateLimit(e.message));
     } on ServerException catch (e) {
-      print('🔴 _onVerifyCode: ServerException: ${e.message}');
-      String errorMessage = e.message;
-      if (e.message.contains('inválido')) {
-        errorMessage = '❌ Código inválido. Verifique os dígitos.';
-      }
-
-      emit(VerificationError(errorMessage));
+      print('🔴 _onResendCode: ServerException: ${e.message}');
+      emit(ResendCodeError(e.message));
     } catch (e) {
-      emit(ResendCodeError('Erro inesperado: $e'));
+      print('🔴 _onResendCode: Erro inesperado: $e');
+      emit(ResendCodeError('Erro ao reenviar código. Tente novamente.'));
     }
   }
 

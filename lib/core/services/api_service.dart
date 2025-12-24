@@ -54,8 +54,7 @@ class ApiService {
       // 🔥 AGORA ERRO NÃO VIRA MAP
       return _handleResponse(response);
     } catch (e) {
-      // 🔴 ERRO DE CONEXÃO REAL → EXCEÇÃO
-      throw ServerException('Erro de conexão: $e');
+      return {'success': false, 'message': 'Erro de conexão com o servidor'};
     }
   }
 
@@ -63,48 +62,42 @@ class ApiService {
     required String endpoint,
     required Map<String, dynamic> data,
     Map<String, String>? headers,
-  }) =>
-      _request('POST', endpoint, requestData: data, requestHeaders: headers);
+  }) => _request('POST', endpoint, requestData: data, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> get({
     required String endpoint,
     Map<String, String>? headers,
-  }) =>
-      _request('GET', endpoint, requestHeaders: headers);
+  }) => _request('GET', endpoint, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> patch({
     required String endpoint,
     required Map<String, dynamic> data,
     Map<String, String>? headers,
-  }) =>
-      _request('PATCH', endpoint, requestData: data, requestHeaders: headers);
+  }) => _request('PATCH', endpoint, requestData: data, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> delete({
     required String endpoint,
     Map<String, String>? headers,
-  }) =>
-      _request('DELETE', endpoint, requestHeaders: headers);
+  }) => _request('DELETE', endpoint, requestHeaders: headers);
 
   static Map<String, dynamic> _handleResponse(http.Response response) {
-    final responseData = jsonDecode(response.body);
+    try {
+      final responseData = jsonDecode(response.body);
 
-    // ✅ HTTP OK
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      // 🔴 SE BACKEND DIZ success=false → EXCEÇÃO
-      if (responseData is Map &&
-          responseData.containsKey('success') &&
-          responseData['success'] == false) {
-        throw ServerException(
-          responseData['message'] ?? 'Erro de verificação',
-        );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return {'success': responseData['success'] ?? true, ...responseData};
       }
 
-      return responseData;
+      return {
+        'success': false,
+        'statusCode': response.statusCode,
+        'message':
+            responseData['message'] ??
+            responseData['error'] ??
+            'Erro inesperado',
+      };
+    } catch (_) {
+      return {'success': false, 'message': 'Resposta inválida do servidor'};
     }
-
-    // 🔴 HTTP ERRO → EXCEÇÃO
-    throw ServerException(
-      responseData['message'] ?? 'Erro inesperado (${response.statusCode})',
-    );
   }
 }

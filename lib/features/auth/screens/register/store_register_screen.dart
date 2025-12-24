@@ -104,7 +104,7 @@ class _StoreRegisterScreenState extends State<StoreRegisterScreen> {
                   AuthFormField(
                     controller: _nameController,
                     label: 'Nome do Estabelecimento',
-                    validator: validatePersonName,
+                    validator: validateStoreName,
                     focusedBorderColor: const Color(0xFFEC5050),
                   ),
                   AuthFormField(

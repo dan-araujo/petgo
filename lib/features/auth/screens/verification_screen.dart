@@ -38,7 +38,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
         listener: (context, state) {
           if (state is VerificationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Email verificado com sucesso!')),
+              const SnackBar(
+                content: Text('Email verificado com sucesso!'),
+                backgroundColor: Colors.green,
+              ),
             );
             final loginRoute = AuthRoutes.getLoginRoute(widget.userType);
             Navigator.of(context).pushReplacementNamed(loginRoute);
@@ -52,30 +55,38 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     Expanded(child: Text(state.message)),
                   ],
                 ),
-                backgroundColor: const Color(
-                  0xFFEF4444,
-                ),
+                backgroundColor: const Color(0xFFEF4444),
                 duration: const Duration(seconds: 4),
                 behavior: SnackBarBehavior.floating,
                 margin: const EdgeInsets.all(16),
               ),
             );
           } else if (state is ResendCodeRateLimit) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
-          // ✅ Sucesso ao reenviar
-          else if (state is ResendCodeSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Novo código enviado!')),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: const Color(0xFFE57373),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          } else if (state is ResendCodeSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Novo código enviado para seu email!'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
             );
           }
           // ✅ Erro ao reenviar
           else if (state is ResendCodeError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
         },
         child: SingleChildScrollView(
@@ -220,6 +231,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
               BlocBuilder<VerificationBloc, VerificationState>(
                 builder: (context, state) {
                   if (state is VerificationCountdown) {
+                    final minutes = state.seconds ~/ 60;
+                    final seconds = state.seconds % 60;
+
+                    final timeString =
+                        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -231,7 +247,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           ),
                         ),
                         Text(
-                          '${state.seconds}s',
+                          timeString,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

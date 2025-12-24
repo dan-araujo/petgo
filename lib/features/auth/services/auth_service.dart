@@ -102,9 +102,7 @@ class AuthService {
       // ✅ CORRETO: checa success na raiz (graças ao interceptor corrigido)
       if (response['success'] != true) {
         print('❌ verifyCode: código inválido');
-        throw ServerException(
-          response['message'] ?? 'Código de verificação inválido ou expirado',
-        );
+        throw ServerException('Código de verificação inválido ou expirado');
       }
 
       print('✅ verifyCode: código válido!');
@@ -115,11 +113,13 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>> resendVerificationCode(
+  static Future<void> resendVerificationCode(
     String email,
     String userType,
   ) async {
     try {
+      print('📧 Reenviando código para: $email');
+
       final response = await ApiService.post(
         endpoint: AppConstants.resendCodeEndpoint,
         data: {'email': email, 'type': userType},
@@ -128,24 +128,28 @@ class AuthService {
       print('📧 Resposta de resend: $response');
 
       if (response['success'] == true) {
-        return {
-          'success': true,
-          'message': response['data']['message'] ?? 'Código reenviado',
-          'email': response['data']['email'] ?? email,
-        };
+        print('✅ Código reenviado com sucesso!');
+        return;
       }
 
-      // ✅ VERIFICA RATE LIMIT CORRETAMENTE
-      if (response['statusCode'] == 429) {
-        throw RateLimitException(
-          response['message'] ?? 'Aguarde antes de solicitar novo código',
-        );
+      final message = response['message'] ?? 'Erro ao reenviar código';
+
+      if (message.contains('aguarde') ||
+          message.contains('segundo') ||
+          message.contains('Aguarde')) {
+        throw RateLimitException(message);
       }
 
-      throw ServerException(response['message'] ?? 'Erro ao reenviar código');
-    } catch (e) {
-      print('❌ Erro ao reenviar código: $e');
+      throw ServerException(message);
+    } on RateLimitException {
       rethrow;
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      print('❌ Erro inesperado: $e');
+      print('❌ Type: ${e.runtimeType}');
+      // Se chegou aqui é erro de rede ou parsing
+      throw ServerException('Erro de conexão com o servidor');
     }
   }
 }

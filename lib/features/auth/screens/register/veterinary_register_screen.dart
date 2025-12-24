@@ -38,6 +38,11 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
       return;
     }
 
+    if (_selectedCategory == null || _selectedCategory!.isEmpty) {
+      showAppSnackBar(context, 'Selecione uma categoria', isError: true);
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -48,6 +53,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
           "password": _passwordController.text.trim(),
+          "category": _selectedCategory,
         },
       );
 
@@ -109,7 +115,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
                   AuthFormField(
                     controller: _nameController,
                     label: 'Nome',
-                    validator: validatePersonName,
+                    validator: validateStoreName,
                     focusedBorderColor: const Color(0xFFFF6B35),
                   ),
                   AuthFormField(
