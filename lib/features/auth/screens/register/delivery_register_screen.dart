@@ -49,8 +49,8 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
       if (result['success'] == true) {
         final data = result['data'];
 
-        if (data['status'] == 'new_sent_code' ||
-            data['status'] == 'pending_code') {
+        if (data != null && (data['status'] == 'new_sent_code' ||
+            data['status'] == 'pending_code')) {
           AuthRoutes.toVerification(
             context,
             email: data['email'],

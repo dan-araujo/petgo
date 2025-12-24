@@ -30,21 +30,28 @@ class AuthService {
         data: {'email': email, 'password': password},
       );
 
+      print('📦 Resposta do login: $response');
+
       if (response['success'] == true) {
         final data = response['data'];
+        
+        print('📊 Data do login: $data');
 
-        if (data['status'] == 'new_sent_code' ||
-            data['status'] == 'pending_code') {
+        if (data != null && 
+            (data['status'] == 'new_sent_code' || 
+             data['status'] == 'pending_code')) {
           throw VerificationPendingException(
-            email: data['email'],
-            message: data['message'],
+            email: data['email'] ?? email,
+            message: data['message'] ?? 'Email não verificado',
           );
         }
-        return LoginResponse.fromJson(response[data]);
+
+        return LoginResponse.fromJson(response);
       }
 
       throw ServerException(response['message'] ?? 'Falha no login');
     } catch (e) {
+      print('❌ Erro no login: $e');
       rethrow;
     }
   }
@@ -59,8 +66,8 @@ class AuthService {
       if (response['success'] == true) {
         return {
           'success': true,
-          'message': response['message'],
-          'email': response['data']['email'],
+          'message': response['data']['message'] ?? 'Código enviado',
+          'email': response['data']['email'] ?? email,
         };
       }
 
@@ -83,8 +90,8 @@ class AuthService {
       if (response['success'] == true) {
         return {
           'success': true,
-          'message': response['message'],
-          'email': response['data']['email'],
+          'message': response['data']['message'] ?? 'Email verificado',
+          'email': response['data']['email'] ?? email,
         };
       }
 
@@ -106,13 +113,15 @@ class AuthService {
       if (response['success'] == true) {
         return {
           'success': true,
-          'message': response['message'],
-          'email': response['data']['email'],
+          'message': response['data']['message'] ?? 'Código reenviado',
+          'email': response['data']['email'] ?? email,
         };
       }
 
-      if (response['data']['status'] == 'error') {
-        throw RateLimitException(response['data']['message']);
+      if (response['statusCode'] == 429) {
+        throw RateLimitException(
+          response['message'] ?? 'Aguarde antes de solicitar novo código',
+        );
       }
 
       throw ServerException(response['message'] ?? 'Erro ao reenviar código');
