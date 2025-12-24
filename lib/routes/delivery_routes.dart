@@ -9,9 +9,12 @@ class DeliveryRoutes {
     return {
       AuthRoutes.deliveryLogin: (context) => const DeliveryLoginScreen(),
       AuthRoutes.deliveryRegister: (context) => const DeliveryRegisterScreen(),
-      '/delivery-home': (context) => DeliveryHomeScreen(
-        userName: ModalRoute.of(context)!.settings.arguments as String,
-      ),
+      '/delivery-home': (context) {
+        final args = ModalRoute.of(context)?.settings.arguments;
+        final userName = args as String? ?? 'Usuário';
+        
+        return DeliveryHomeScreen(userName: userName);
+      },
     };
   }
 }

@@ -32,6 +32,10 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
+      print('🚀 === INICIANDO CADASTRO ===');
+      print('📧 Email: ${_emailController.text.trim()}');
+      print('👤 Nome: ${_nameController.text.trim()}');
+
       final result = await ApiService.post(
         endpoint: AppConstants.registerByType('delivery'),
         data: {
@@ -44,21 +48,46 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
         },
       );
 
+      print('📦 === RESPOSTA DO BACKEND ===');
+      print('Resposta completa: $result');
+      print('Success: ${result['success']}');
+      print('Data: ${result['data']}');
+
       if (!mounted) return;
 
       if (result['success'] == true) {
         final data = result['data'];
 
-        if (data != null && (data['status'] == 'new_sent_code' ||
-            data['status'] == 'pending_code')) {
+        print('📊 === ANALISANDO DATA ===');
+        print('Data é null? ${data == null}');
+        print('Data tipo: ${data.runtimeType}');
+
+        if (data != null) {
+          print('Status no data: ${data['status']}');
+          print('Email no data: ${data['email']}');
+          print('UserId no data: ${data['userId']}');
+        }
+
+        // ✅ CORREÇÃO: Verifica se status existe E é pending_code/new_sent_code
+        if (data != null &&
+            data['status'] != null &&
+            (data['status'] == 'new_sent_code' ||
+                data['status'] == 'pending_code')) {
+          final email = data['email'] ?? _emailController.text.trim();
+
+          print('✅ === REDIRECIONANDO PARA VERIFICAÇÃO ===');
+          print('Email: $email');
+          print('UserType: delivery');
+
           AuthRoutes.toVerification(
             context,
-            email: data['email'],
+            email: email,
             userType: 'delivery',
           );
           return;
         }
 
+        print('⚠️ Status não é pending_code, indo para login');
         showAppSnackBar(context, 'Cadastro realizado com sucesso!');
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -67,16 +96,19 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
         );
         _formKey.currentState!.reset();
       } else {
+        print('❌ Success é false');
         final message = getFriendlyErrorMessage(
           result['statusCode'] ?? 400,
           result['message'],
         );
         showAppSnackBar(context, message, isError: true);
       }
-      setState(() => _isLoading = false);
-    } catch (e) {
-      if (!mounted) return;
+    } catch (e, stackTrace) {
+      print('❌ === ERRO NO CADASTRO ===');
+      print('Erro: $e');
+      print('StackTrace: $stackTrace');
 
+      if (!mounted) return;
       showAppSnackBar(context, 'Erro ao cadastrar: $e', isError: true);
     } finally {
       if (mounted) {
