@@ -34,7 +34,6 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
     try {
       print('🚀 === INICIANDO CADASTRO ===');
       print('📧 Email: ${_emailController.text.trim()}');
-      print('👤 Nome: ${_nameController.text.trim()}');
 
       final result = await ApiService.post(
         endpoint: AppConstants.registerByType('delivery'),
@@ -48,55 +47,45 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
         },
       );
 
-      print('📦 === RESPOSTA DO BACKEND ===');
-      print('Resposta completa: $result');
+      print('📦 === RESPOSTA COMPLETA DO BACKEND ===');
+      print(result);
+      print('---');
       print('Success: ${result['success']}');
       print('Data: ${result['data']}');
+      print('Data type: ${result['data']?.runtimeType}');
+
+      if (result['data'] != null) {
+        print('Status no data: ${result['data']['status']}');
+        print('Email no data: ${result['data']['email']}');
+      }
 
       if (!mounted) return;
 
       if (result['success'] == true) {
         final data = result['data'];
 
-        print('📊 === ANALISANDO DATA ===');
-        print('Data é null? ${data == null}');
-        print('Data tipo: ${data.runtimeType}');
-
-        if (data != null) {
-          print('Status no data: ${data['status']}');
-          print('Email no data: ${data['email']}');
-          print('UserId no data: ${data['userId']}');
-        }
-
-        // ✅ CORREÇÃO: Verifica se status existe E é pending_code/new_sent_code
-        if (data != null &&
+        // ✅ Verificação melhorada
+        if (data is Map<String, dynamic> &&
             data['status'] != null &&
             (data['status'] == 'new_sent_code' ||
                 data['status'] == 'pending_code')) {
-          final email = data['email'] ?? _emailController.text.trim();
-
-          print('✅ === REDIRECIONANDO PARA VERIFICAÇÃO ===');
-          print('Email: $email');
-          print('UserType: delivery');
-
+          print('✅ REDIRECIONANDO PARA VERIFICAÇÃO');
           AuthRoutes.toVerification(
             context,
-            email: email,
+            email: data['email'] ?? _emailController.text.trim(),
             userType: 'delivery',
           );
           return;
         }
 
-        print('⚠️ Status não é pending_code, indo para login');
+        print('⚠️ Não redirecionou: status = ${data?['status']}');
         showAppSnackBar(context, 'Cadastro realizado com sucesso!');
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/delivery-login',
           (route) => false,
         );
-        _formKey.currentState!.reset();
       } else {
-        print('❌ Success é false');
         final message = getFriendlyErrorMessage(
           result['statusCode'] ?? 400,
           result['message'],
