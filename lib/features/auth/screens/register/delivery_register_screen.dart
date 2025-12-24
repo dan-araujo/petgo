@@ -33,7 +33,6 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
 
     try {
       print('🚀 === INICIANDO CADASTRO ===');
-      print('📧 Email: ${_emailController.text.trim()}');
 
       final result = await ApiService.post(
         endpoint: AppConstants.registerByType('delivery'),
@@ -47,58 +46,49 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
         },
       );
 
-      print('📦 === RESPOSTA COMPLETA DO BACKEND ===');
-      print(result);
-      print('---');
-      print('Success: ${result['success']}');
-      print('Data: ${result['data']}');
-      print('Data type: ${result['data']?.runtimeType}');
-
-      if (result['data'] != null) {
-        print('Status no data: ${result['data']['status']}');
-        print('Email no data: ${result['data']['email']}');
-      }
+      print('📦 === RESPOSTA DO BACKEND ===');
+      print('Resposta: $result');
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        final data = result['data'];
+      // ✅ Verifica se success é true
+      final success = result['success'] as bool? ?? false;
 
-        // ✅ Verificação melhorada
-        if (data is Map<String, dynamic> &&
-            data['status'] != null &&
-            (data['status'] == 'new_sent_code' ||
-                data['status'] == 'pending_code')) {
-          print('✅ REDIRECIONANDO PARA VERIFICAÇÃO');
-          AuthRoutes.toVerification(
-            context,
-            email: data['email'] ?? _emailController.text.trim(),
-            userType: 'delivery',
-          );
-          return;
-        }
-
-        print('⚠️ Não redirecionou: status = ${data?['status']}');
-        showAppSnackBar(context, 'Cadastro realizado com sucesso!');
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/delivery-login',
-          (route) => false,
-        );
-      } else {
-        final message = getFriendlyErrorMessage(
-          result['statusCode'] ?? 400,
-          result['message'],
-        );
+      if (!success) {
+        // ❌ Erro: success é false
+        final message = result['message'] as String? ?? 'Erro ao cadastrar';
+        print('❌ Erro: $message');
         showAppSnackBar(context, message, isError: true);
+        return;
       }
+
+      // ✅ Se success é true, extrai dados de dentro de 'data'
+      final authData = result['data'] as Map<String, dynamic>? ?? {};
+      final message = authData['message'] as String? ?? 'Cadastro realizado!';
+      final userData = authData['data'] as Map<String, dynamic>? ?? {};
+      final email =
+          userData['email'] as String? ?? _emailController.text.trim();
+      final userId = userData['userId'] as String?;
+
+      print('✅ Cadastro com sucesso!');
+      print('  Email: $email');
+      print('  UserId: $userId');
+      print('  Message: $message');
+
+      // ✅ Após cadastro bem-sucedido com código pendente,
+      // redireciona para verificação
+      showAppSnackBar(context, message);
+
+      AuthRoutes.toVerification(context, email: email, userType: 'delivery');
     } catch (e, stackTrace) {
       print('❌ === ERRO NO CADASTRO ===');
       print('Erro: $e');
       print('StackTrace: $stackTrace');
 
       if (!mounted) return;
-      showAppSnackBar(context, 'Erro ao cadastrar: $e', isError: true);
+
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
+      showAppSnackBar(context, errorMessage, isError: true);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
