@@ -2,6 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:petgo/core/constants/app_constants.dart';
 
+// 🔴 Exceção específica para erro de servidor
+class ServerException implements Exception {
+  final String message;
+  ServerException(this.message);
+}
+
 class ApiService {
   static const String _baseUrl = AppConstants.baseUrl;
   static const Duration _timeout = AppConstants.connectionTimeout;
@@ -14,13 +20,12 @@ class ApiService {
     Map<String, dynamic>? requestData,
     Map<String, String>? requestHeaders,
   }) async {
+    final url = Uri.parse("$_baseUrl$endpoint");
+    final customHeaders = {..._defaultHeaders, ...?requestHeaders};
+
+    late http.Response response;
+
     try {
-      final url = Uri.parse("$_baseUrl$endpoint");
-
-      final customHeaders = {..._defaultHeaders, ...?requestHeaders};
-
-      late http.Response response;
-
       switch (method.toUpperCase()) {
         case 'POST':
           response = await http
@@ -46,9 +51,11 @@ class ApiService {
           throw Exception('Método HTTP não suportado: $method');
       }
 
+      // 🔥 AGORA ERRO NÃO VIRA MAP
       return _handleResponse(response);
     } catch (e) {
-      return {'success': false, 'message': 'Erro de conexão: $e'};
+      // 🔴 ERRO DE CONEXÃO REAL → EXCEÇÃO
+      throw ServerException('Erro de conexão: $e');
     }
   }
 
@@ -56,39 +63,48 @@ class ApiService {
     required String endpoint,
     required Map<String, dynamic> data,
     Map<String, String>? headers,
-  }) => _request('POST', endpoint, requestData: data, requestHeaders: headers);
+  }) =>
+      _request('POST', endpoint, requestData: data, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> get({
     required String endpoint,
     Map<String, String>? headers,
-  }) => _request('GET', endpoint, requestHeaders: headers);
+  }) =>
+      _request('GET', endpoint, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> patch({
     required String endpoint,
     required Map<String, dynamic> data,
     Map<String, String>? headers,
-  }) => _request('PATCH', endpoint, requestData: data, requestHeaders: headers);
+  }) =>
+      _request('PATCH', endpoint, requestData: data, requestHeaders: headers);
 
   static Future<Map<String, dynamic>> delete({
     required String endpoint,
     Map<String, String>? headers,
-  }) => _request('DELETE', endpoint, requestHeaders: headers);
+  }) =>
+      _request('DELETE', endpoint, requestHeaders: headers);
 
   static Map<String, dynamic> _handleResponse(http.Response response) {
-    try {
-      final responseData = jsonDecode(response.body);
+    final responseData = jsonDecode(response.body);
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return {'success': true, 'data': responseData};
-      } else {
-        return {
-          'success': false,
-          'statusCode': response.statusCode,
-          'message': responseData['message'] ?? 'Erro inesperado',
-        };
+    // ✅ HTTP OK
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      // 🔴 SE BACKEND DIZ success=false → EXCEÇÃO
+      if (responseData is Map &&
+          responseData.containsKey('success') &&
+          responseData['success'] == false) {
+        throw ServerException(
+          responseData['message'] ?? 'Erro de verificação',
+        );
       }
-    } catch (e) {
-      return {'success': false, 'message': 'Erro ao processar resposta: $e'};
+
+      return responseData;
     }
+
+    // 🔴 HTTP ERRO → EXCEÇÃO
+    throw ServerException(
+      responseData['message'] ?? 'Erro inesperado (${response.statusCode})',
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petgo/core/constants/app_constants.dart';
 import 'package:petgo/core/services/api_service.dart';
-import 'package:petgo/core/utils/http_error_handler.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';

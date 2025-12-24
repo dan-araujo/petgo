@@ -5,31 +5,25 @@ class LoginResponse {
   LoginResponse({required this.accessToken, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    print('📑 === PARSE LOGIN RESPONSE ===');
-    print('JSON completo: $json');
-    print('JSON keys: ${json.keys.toList()}');
-    
-    // ✅ Backend retorna: { success: true, data: { access_token, user: {...} } }
-    final authResponse = json['data'] ?? {};
-    print('AuthResponse: $authResponse');
-    print('AuthResponse type: ${authResponse.runtimeType}');
-    print('AuthResponse keys: ${authResponse is Map ? (authResponse as Map).keys.toList() : "N/A"}');
+    final authResponse = json['data'] as Map<String, dynamic>? ?? {};
+    String accessToken = '';
 
-    // ✅ Token pode estar direto em 'access_token' ou dentro de 'data'
-    final accessToken = 
-        authResponse['access_token'] as String? ?? 
-        (authResponse['data'] is Map ? authResponse['data']['access_token'] : null) ?? 
-        '';
-    
-    final userData = authResponse['user'] ?? authResponse['data']?['user'] ?? {};
-    
-    print('AccessToken: ${accessToken.substring(0, 20)}...');
-    print('UserData: $userData');
-    print('---');
+    if (authResponse['access_token'] is String) {
+      accessToken = authResponse['access_token'] as String;
+    } else if (authResponse['data'] is Map<String, dynamic>) {
+      final dataMap = authResponse['data'] as Map<String, dynamic>;
+      accessToken = dataMap['access_token'] as String? ?? '';
+    }
+
+    final userDataRaw =
+        authResponse['user'] ?? authResponse['data']?['user'] ?? {};
+    final userData = userDataRaw is Map<String, dynamic>
+        ? userDataRaw
+        : (userDataRaw as Map).cast<String, dynamic>();
 
     return LoginResponse(
       accessToken: accessToken,
-      user: UserData.fromJson(userData is Map ? userData : {}),
+      user: UserData.fromJson(userData),
     );
   }
 
@@ -52,15 +46,11 @@ class UserData {
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
-    print('👤 === PARSE USER DATA ===');
-    print('UserData JSON: $json');
-    print('UserData keys: ${json.keys.toList()}');
-    
     return UserData(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      email: json['email'] ?? '',
-      category: json['category'],
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      category: json['category'] as String?,
     );
   }
 

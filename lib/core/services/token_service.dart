@@ -38,7 +38,7 @@ class TokenService {
     return {
       'id': prefs.getString(_userIdKey),
       'name': prefs.getString(_userNameKey),
-      'email': prefs.getString(_userCategoryKey),
+      'email': prefs.getString(_userEmailKey),
     };
   }
 

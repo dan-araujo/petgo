@@ -3,19 +3,21 @@ import 'package:petgo/core/services/api_service.dart';
 import 'package:petgo/features/auth/models/login_response.dart';
 
 class AuthService {
-  Future<LoginResponse> loginStore(String email, String password) async {
+  AuthService._();
+
+  static Future<LoginResponse> loginStore(String email, String password) async {
     return _login(AppConstants.loginByType('store'), email, password);
   }
 
-  Future<LoginResponse> loginCustomer(String email, String password) {
+  static Future<LoginResponse> loginCustomer(String email, String password) {
     return _login(AppConstants.loginByType('customer'), email, password);
   }
 
-  Future<LoginResponse> loginDelivery(String email, String password) {
+  static Future<LoginResponse> loginDelivery(String email, String password) {
     return _login(AppConstants.loginByType('delivery'), email, password);
   }
 
-  Future<LoginResponse> loginVeterinary(String email, String password) {
+  static Future<LoginResponse> loginVeterinary(String email, String password) {
     return _login(AppConstants.loginByType('veterinary'), email, password);
   }
 
@@ -30,16 +32,19 @@ class AuthService {
         data: {'email': email, 'password': password},
       );
 
-      print('📦 Resposta do login: $response');
+      print('🔍 RESPOSTA COMPLETA DO BACK-END: $response');
+    print('🔍 Type of response: ${response.runtimeType}');
+    print('🔍 Response keys: ${response.keys}');
+    print('🔍 response[success] = ${response['success']}');
+    print('🔍 Type of response[success] = ${response['success'].runtimeType}');
 
       if (response['success'] == true) {
         final data = response['data'];
-        
         print('📊 Data do login: $data');
 
-        if (data != null && 
-            (data['status'] == 'new_sent_code' || 
-             data['status'] == 'pending_code')) {
+        if (data != null &&
+            (data['status'] == 'new_sent_code' ||
+                data['status'] == 'pending_code')) {
           throw VerificationPendingException(
             email: data['email'] ?? email,
             message: data['message'] ?? 'Email não verificado',
@@ -80,35 +85,48 @@ class AuthService {
   static Future<Map<String, dynamic>> verifyCode(
     String email,
     String code,
+    String userType,
   ) async {
     try {
       final response = await ApiService.post(
         endpoint: AppConstants.verifyEmailEndpoint,
-        data: {'email': email, 'code': code},
+        data: {'email': email, 'code': code, 'type': userType},
       );
 
+      print('📋 Resposta de verificação: $response');
+
+      // ✅ VERIFICA CORRETAMENTE
       if (response['success'] == true) {
         return {
           'success': true,
-          'message': response['data']['message'] ?? 'Email verificado',
-          'email': response['data']['email'] ?? email,
+          'message': response['message'] ?? 'Email verificado',
+          'email': response['email'] ?? email,
         };
       }
 
-      throw Exception(response['message'] ?? 'Falha ao verificar código');
+      // ✅ SE NÃO FOR SUCESSO, RETORNA ERRO E NÃO LANÇA EXCEPTION
+      return {
+        'success': false,
+        'message': response['message'] ?? 'Código inválido ou expirado',
+        'email': email,
+      };
     } catch (e) {
-      rethrow;
+      print('❌ Erro ao verificar código: $e');
+      throw ServerException('Erro ao verificar código: $e');
     }
   }
 
   static Future<Map<String, dynamic>> resendVerificationCode(
     String email,
+    String userType,
   ) async {
     try {
       final response = await ApiService.post(
         endpoint: AppConstants.resendCodeEndpoint,
-        data: {'email': email},
+        data: {'email': email, 'type': userType},
       );
+
+      print('📧 Resposta de resend: $response');
 
       if (response['success'] == true) {
         return {
@@ -118,6 +136,7 @@ class AuthService {
         };
       }
 
+      // ✅ VERIFICA RATE LIMIT CORRETAMENTE
       if (response['statusCode'] == 429) {
         throw RateLimitException(
           response['message'] ?? 'Aguarde antes de solicitar novo código',
@@ -126,13 +145,16 @@ class AuthService {
 
       throw ServerException(response['message'] ?? 'Erro ao reenviar código');
     } catch (e) {
+      print('❌ Erro ao reenviar código: $e');
       rethrow;
     }
   }
 }
 
+// ✅ EXCEÇÕES CUSTOMIZADAS
 class UnauthorizedException implements Exception {
   final String message;
+
   UnauthorizedException(this.message);
 
   @override
@@ -141,6 +163,7 @@ class UnauthorizedException implements Exception {
 
 class ServerException implements Exception {
   final String message;
+
   ServerException(this.message);
 
   @override
@@ -150,7 +173,11 @@ class ServerException implements Exception {
 class VerificationPendingException implements Exception {
   final String email;
   final String message;
-  VerificationPendingException({required this.email, required this.message});
+
+  VerificationPendingException({
+    required this.email,
+    required this.message,
+  });
 
   @override
   String toString() => message;
@@ -158,6 +185,7 @@ class VerificationPendingException implements Exception {
 
 class RateLimitException implements Exception {
   final String message;
+
   RateLimitException(this.message);
 
   @override

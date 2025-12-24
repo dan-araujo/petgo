@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petgo/core/constants/app_constants.dart';
 import 'package:petgo/core/services/api_service.dart';
-import 'package:petgo/core/utils/http_error_handler.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
@@ -38,46 +37,34 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
           "name": _nameController.text.trim(),
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
+          "cpf": _cpfController.text.trim(),
           "password": _passwordController.text.trim(),
-          if (_cpfController.text.trim().isNotEmpty)
-            "cpf": _cpfController.text.trim(),
         },
       );
 
       if (!mounted) return;
+      final success = result['success'] as bool? ?? false;
 
-      if (result['success'] == true) {
-        final data = result['data'];
-
-        if (data['status'] == 'new_sent_code' ||
-            data['status'] == 'pending_code') {
-          AuthRoutes.toVerification(
-            context,
-            email: data['email'],
-            userType: 'customer',
-          );
-          return;
-        }
-
-        showAppSnackBar(context, 'Cadastro realizado com sucesso!');
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/customer-login',
-          (route) => false,
-        );
-        _formKey.currentState!.reset();
-      } else {
-        final message = getFriendlyErrorMessage(
-          result['statusCode'] ?? 400,
-          result['message'],
-        );
+      if (!success) {
+        final message = result['message'] as String? ?? 'Erro ao cadastrar';
         showAppSnackBar(context, message, isError: true);
+        return;
       }
-      setState(() => _isLoading = false);
+
+      final authData = result['data'] as Map<String, dynamic>? ?? {};
+      final message = authData['message'] as String? ?? 'Cadastro realizado!';
+      final userData = authData['data'] as Map<String, dynamic>? ?? {};
+      final email =
+          userData['email'] as String? ?? _emailController.text.trim();
+
+      showAppSnackBar(context, message);
+
+      AuthRoutes.toVerification(context, email: email, userType: 'customer');
     } catch (e) {
       if (!mounted) return;
 
-      showAppSnackBar(context, 'Erro ao cadastrar: $e', isError: true);
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
+      showAppSnackBar(context, errorMessage, isError: true);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
