@@ -37,6 +37,7 @@ dependencies:
   http: ^1.5.0
   shared_preferences: ^2.2.0
   flutter_bloc: ^9.1.1
+  equatable: ^2.0.5
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +74,8 @@ flutter:
     - assets/images/register/customer_girl_dog.png
     - assets/images/register/store_service.png
     - assets/images/register/delivery_motorbike.png
-    - assets/images/verification_lock.png
+    - assets/images/auth/verification_lock.png
+    - assets/images/auth/reset_password.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
