@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/core/constants/app_constants.dart';
-import 'package:petgo/core/services/api_service.dart';
+import 'package:petgo/core/api/api_endpoints.dart';
+import 'package:petgo/core/api/api_service.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<VeterinaryRegisterScreen> {
 
     try {
       final result = await ApiService.post(
-        endpoint: AppConstants.registerByType('veterinary'),
+        endpoint: ApiEndpoints.registerByType('veterinary'),
         data: {
           "name": _nameController.text.trim(),
           "email": _emailController.text.trim(),

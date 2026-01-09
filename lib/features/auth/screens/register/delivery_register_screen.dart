@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petgo/core/constants/app_constants.dart';
-import 'package:petgo/core/services/api_service.dart';
+import 'package:petgo/core/api/api_endpoints.dart';
+import 'package:petgo/core/api/api_service.dart';
 import 'package:petgo/core/utils/snackbar_helper.dart';
 import 'package:petgo/core/utils/validators.dart';
 import 'package:petgo/core/widgets/submit_button.dart';
@@ -31,10 +31,8 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('🚀 === INICIANDO CADASTRO ===');
-
       final result = await ApiService.post(
-        endpoint: AppConstants.registerByType('delivery'),
+        endpoint: ApiEndpoints.registerByType('delivery'),
         data: {
           "name": _nameController.text.trim(),
           "email": _emailController.text.trim(),
@@ -44,45 +42,23 @@ class _RegisterScreenState extends State<DeliveryRegisterScreen> {
             "cpf": _cpfController.text.trim(),
         },
       );
-
-      print('📦 === RESPOSTA DO BACKEND ===');
-      print('Resposta: $result');
-
       if (!mounted) return;
-
-      // ✅ Verifica se success é true
       final success = result['success'] as bool? ?? false;
 
       if (!success) {
-        // ❌ Erro: success é false
         final message = result['message'] as String? ?? 'Erro ao cadastrar';
-        print('❌ Erro: $message');
         showAppSnackBar(context, message, isError: true);
         return;
       }
-
-      // ✅ Se success é true, extrai dados de dentro de 'data'
       final authData = result['data'] as Map<String, dynamic>? ?? {};
       final message = authData['message'] as String? ?? 'Cadastro realizado!';
       final userData = authData['data'] as Map<String, dynamic>? ?? {};
       final email =
           userData['email'] as String? ?? _emailController.text.trim();
-      final userId = userData['userId'] as String?;
-
-      print('✅ Cadastro com sucesso!');
-      print('  Email: $email');
-      print('  UserId: $userId');
-      print('  Message: $message');
-
-      // ✅ Após cadastro bem-sucedido com código pendente,
-      // redireciona para verificação
       showAppSnackBar(context, message);
 
       AuthRoutes.toVerification(context, email: email, userType: 'delivery');
-    } catch (e, stackTrace) {
-      print('❌ === ERRO NO CADASTRO ===');
-      print('Erro: $e');
-      print('StackTrace: $stackTrace');
+    } catch (e) {
 
       if (!mounted) return;
 
