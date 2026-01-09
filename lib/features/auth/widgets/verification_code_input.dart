@@ -4,11 +4,15 @@ import 'package:flutter/services.dart';
 class VerificationCodeInput extends StatefulWidget {
   final Function(String) onChanged;
   final int codeLength;
+  final Color borderColor;
+  final Color textColor;
 
   const VerificationCodeInput({
     super.key,
     required this.onChanged,
     this.codeLength = 6,
+    this.borderColor = const Color(0xFF208B8D),
+    this.textColor = const Color(0x8A000000),
   });
 
   @override
@@ -89,29 +93,23 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF208B8D)),
+                borderSide: BorderSide(color: widget.borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xFF208B8D),
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: widget.borderColor, width: 2),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xFF208B8D),
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: widget.borderColor, width: 2),
               ),
               filled: true,
               fillColor: Colors.white,
             ),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF208B8D),
+              color: widget.textColor,
             ),
             onChanged: (value) => _handleInput(value, index),
           ),
