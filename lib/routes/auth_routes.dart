@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petgo/features/auth/bloc/verification_bloc.dart';
-import 'package:petgo/features/auth/screens/verification_screen.dart';
+import 'package:petgo/core/navigation/route_args.dart';
+import 'package:petgo/features/auth/account-verification/bloc/verification_bloc.dart';
+import 'package:petgo/features/auth/forgot-password/screens/forgot_password_flow_page.dart';
+import 'package:petgo/features/auth/account-verification/screens/email_verification_screen.dart';
 
 class AuthRoutes {
   static const String customerLogin = '/customer-login';
@@ -14,24 +16,26 @@ class AuthRoutes {
   static const String veterinaryRegister = '/veterinary-register';
 
   static const String verification = '/verification';
+  static const String forgotPassword = '/forgot-password';
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       verification: (context) {
-        final args = ModalRoute.of(context)!.settings.arguments as Map;
-        final email = args['email'] as String?;
-        final userType = args['userType'] as String?;
-
-        if (email == null || userType == null) {
-          throw ArgumentError(
-            'Email e user type são obrigatórios para verificação',
-          );
-        }
+        final args =
+            ModalRoute.of(context)!.settings.arguments as VerificationArgs;
 
         return BlocProvider(
-          create: (context) => VerificationBloc(),
-          child: VerificationScreen(email: email, userType: userType),
+          create: (_) => VerificationBloc(),
+          child: EmailVerificationScreen(
+            email: args.email,
+            userType: args.userType,
+          ),
         );
+      },
+      forgotPassword: (context) {
+        final args =
+            ModalRoute.of(context)!.settings.arguments as ForgotPasswordArgs;
+        return ForgotPasswordFlowPage(userType: args.userType);
       },
     };
   }
@@ -41,10 +45,15 @@ class AuthRoutes {
     required String email,
     required String userType,
   }) {
-    Navigator.of(context).pushNamed(
+    Navigator.pushNamed(
+      context,
       verification,
-      arguments: {'email': email, 'userType': userType},
+      arguments: VerificationArgs(email: email, userType: userType),
     );
+  }
+
+  static void toForgotPassword(BuildContext context, { required String userType }) {
+    Navigator.pushNamed(context, forgotPassword, arguments: ForgotPasswordArgs(userType: userType));
   }
 
   static String getLoginRoute(String userType) {
