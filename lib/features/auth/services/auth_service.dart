@@ -1,24 +1,32 @@
-import 'package:petgo/core/constants/app_constants.dart';
-import 'package:petgo/core/services/api_service.dart';
+import 'package:petgo/core/api/api_endpoints.dart';
+import 'package:petgo/core/errors/app_exceptions.dart';
+import 'package:petgo/core/api/api_service.dart';
 import 'package:petgo/features/auth/models/login_response.dart';
 
 class AuthService {
-  AuthService();
-
   static Future<LoginResponse> loginStore(String email, String password) async {
-    return _login(AppConstants.loginByType('store'), email, password);
+    return _login(ApiEndpoints.loginByType('store'), email, password);
   }
 
-  static Future<LoginResponse> loginCustomer(String email, String password) {
-    return _login(AppConstants.loginByType('customer'), email, password);
+  static Future<LoginResponse> loginCustomer(
+    String email,
+    String password,
+  ) async {
+    return _login(ApiEndpoints.loginByType('customer'), email, password);
   }
 
-  static Future<LoginResponse> loginDelivery(String email, String password) {
-    return _login(AppConstants.loginByType('delivery'), email, password);
+  static Future<LoginResponse> loginDelivery(
+    String email,
+    String password,
+  ) async {
+    return _login(ApiEndpoints.loginByType('delivery'), email, password);
   }
 
-  static Future<LoginResponse> loginVeterinary(String email, String password) {
-    return _login(AppConstants.loginByType('veterinary'), email, password);
+  static Future<LoginResponse> loginVeterinary(
+    String email,
+    String password,
+  ) async {
+    return _login(ApiEndpoints.loginByType('veterinary'), email, password);
   }
 
   static Future<LoginResponse> _login(
@@ -26,168 +34,27 @@ class AuthService {
     String email,
     String password,
   ) async {
-    try {
-      final response = await ApiService.post(
-        endpoint: endpoint,
-        data: {'email': email, 'password': password},
-      );
+    final response = await ApiService.post(
+      endpoint: endpoint,
+      data: {'email': email, 'password': password},
+    );
 
-      print('🔍 RESPOSTA COMPLETA DO BACK-END: $response');
-      print('🔍 Type of response: ${response.runtimeType}');
-      print('🔍 Response keys: ${response.keys}');
-      print('🔍 response[success] = ${response['success']}');
-      print(
-        '🔍 Type of response[success] = ${response['success'].runtimeType}',
-      );
-
-      if (response['success'] == true) {
-        final data = response['data'];
-        print('📊 Data do login: $data');
-
-        if (data != null &&
-            (data['status'] == 'new_sent_code' ||
-                data['status'] == 'pending_code')) {
-          throw VerificationPendingException(
-            email: data['email'] ?? email,
-            message: data['message'] ?? 'Email não verificado',
-          );
-        }
-
-        return LoginResponse.fromJson(response);
-      }
-
+    if (response['success'] != true) {
       throw ServerException(response['message'] ?? 'Falha no login');
-    } catch (e) {
-      print('❌ Erro no login: $e');
-      rethrow;
     }
-  }
 
-  static Future<Map<String, dynamic>> sendVerificationCode(String email) async {
-    try {
-      final response = await ApiService.post(
-        endpoint: AppConstants.sendCodeEndpoint,
-        data: {'email': email},
-      );
+    final data = response['data'];
 
-      if (response['success'] == true) {
-        return {
-          'success': true,
-          'message': response['data']['message'] ?? 'Código enviado',
-          'email': response['data']['email'] ?? email,
-        };
+    if (data is Map<String, dynamic>) {
+      final status = data['status'] as String?;
+
+      if (status == 'new_sent_code' || status == 'pending_code') {
+        throw VerificationPendingException(
+          email: (data['email'] as String?) ?? email,
+          message: (data['message'] as String?) ?? 'Email não verificado',
+        );
       }
-
-      throw ServerException(response['message'] ?? 'Erro ao enviar código');
-    } catch (e) {
-      rethrow;
     }
+    return LoginResponse.fromJson(response);
   }
-
-  static Future<void> verifyCode(
-    String email,
-    String code,
-    String userType,
-  ) async {
-    try {
-      print('🔹 verifyCode: iniciando com código=$code');
-
-      final response = await ApiService.post(
-        endpoint: AppConstants.verifyEmailEndpoint,
-        data: {'email': email, 'code': code, 'type': userType},
-      );
-
-      print('✅ verifyCode: resposta recebida: $response');
-
-      // ✅ CORRETO: checa success na raiz (graças ao interceptor corrigido)
-      if (response['success'] != true) {
-        print('❌ verifyCode: código inválido');
-        throw ServerException('Código de verificação inválido ou expirado');
-      }
-
-      print('✅ verifyCode: código válido!');
-    } on ServerException {
-      rethrow;
-    } catch (e) {
-      throw ServerException('Erro ao verificar código: $e');
-    }
-  }
-
-  static Future<void> resendVerificationCode(
-    String email,
-    String userType,
-  ) async {
-    try {
-      print('📧 Reenviando código para: $email');
-
-      final response = await ApiService.post(
-        endpoint: AppConstants.resendCodeEndpoint,
-        data: {'email': email, 'type': userType},
-      );
-
-      print('📧 Resposta de resend: $response');
-
-      if (response['success'] == true) {
-        print('✅ Código reenviado com sucesso!');
-        return;
-      }
-
-      final message = response['message'] ?? 'Erro ao reenviar código';
-
-      if (message.contains('aguarde') ||
-          message.contains('segundo') ||
-          message.contains('Aguarde')) {
-        throw RateLimitException(message);
-      }
-
-      throw ServerException(message);
-    } on RateLimitException {
-      rethrow;
-    } on ServerException {
-      rethrow;
-    } catch (e) {
-      print('❌ Erro inesperado: $e');
-      print('❌ Type: ${e.runtimeType}');
-      // Se chegou aqui é erro de rede ou parsing
-      throw ServerException('Erro de conexão com o servidor');
-    }
-  }
-}
-
-// ✅ EXCEÇÕES CUSTOMIZADAS
-class UnauthorizedException implements Exception {
-  final String message;
-
-  UnauthorizedException(this.message);
-
-  @override
-  String toString() => message;
-}
-
-class ServerException implements Exception {
-  final String message;
-
-  ServerException(this.message);
-
-  @override
-  String toString() => message;
-}
-
-class VerificationPendingException implements Exception {
-  final String email;
-  final String message;
-
-  VerificationPendingException({required this.email, required this.message});
-
-  @override
-  String toString() => message;
-}
-
-class RateLimitException implements Exception {
-  final String message;
-
-  RateLimitException(this.message);
-
-  @override
-  String toString() => message;
 }
