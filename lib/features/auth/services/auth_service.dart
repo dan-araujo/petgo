@@ -39,22 +39,22 @@ class AuthService {
       data: {'email': email, 'password': password},
     );
 
-    if (response['success'] != true) {
+    // Check if response is successful (backend returns true for both success and pending_code)
+    final status = response['status'] as String?;
+
+    // Handle pending verification status
+    if (status == 'pending_code' || status == 'new_sent_code') {
+      throw VerificationPendingException(
+        email: (response['email'] as String?) ?? email,
+        message: (response['message'] as String?) ?? 'Email não verificado',
+      );
+    }
+
+    // Handle error responses
+    if (response['success'] != true && status != 'success') {
       throw ServerException(response['message'] ?? 'Falha no login');
     }
 
-    final data = response['data'];
-
-    if (data is Map<String, dynamic>) {
-      final status = data['status'] as String?;
-
-      if (status == 'new_sent_code' || status == 'pending_code') {
-        throw VerificationPendingException(
-          email: (data['email'] as String?) ?? email,
-          message: (data['message'] as String?) ?? 'Email não verificado',
-        );
-      }
-    }
     return LoginResponse.fromJson(response);
   }
 }
