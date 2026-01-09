@@ -21,7 +21,7 @@ class EmailVerificationService {
   }) async {
     final response = await ApiService.post(
       endpoint: ApiEndpoints.resendVerificationCodeEndpoint,
-      data: {'email': email, 'type': UserTypeMapper.toBackendEnum(userType)},
+      data: {'email': email, 'userType': UserTypeMapper.toBackendEnum(userType)},
     );
 
     if (response['success'] != true) {
@@ -36,7 +36,7 @@ class EmailVerificationService {
   }) async {
     final response = await ApiService.post(
       endpoint: ApiEndpoints.verifyEmailCodeEndpoint,
-      data: {'email': email, 'code': code, 'type': UserTypeMapper.toBackendEnum(userType)},
+      data: {'email': email, 'code': code, 'userType': UserTypeMapper.toBackendEnum(userType)},
     );
 
     if (response['success'] != true) {
