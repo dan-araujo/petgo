@@ -39,10 +39,11 @@ class AuthService {
       data: {'email': email, 'password': password},
     );
 
-    // Check if response is successful (backend returns true for both success and pending_code)
+    // IMPORTANTE: Check status PRIMEIRO antes de tentar parsear LoginResponse
+    // Porque o backend retorna status no root level
     final status = response['status'] as String?;
 
-    // Handle pending verification status
+    // Handle pending verification status - deve vir ANTES de tentar usar token
     if (status == 'pending_code' || status == 'new_sent_code') {
       throw VerificationPendingException(
         email: (response['email'] as String?) ?? email,
@@ -55,6 +56,7 @@ class AuthService {
       throw ServerException(response['message'] ?? 'Falha no login');
     }
 
+    // Somente agora, que sabemos que é um login bem-sucedido, parsear LoginResponse
     return LoginResponse.fromJson(response);
   }
 }
