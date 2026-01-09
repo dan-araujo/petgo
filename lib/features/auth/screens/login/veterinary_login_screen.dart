@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/core/errors/app_exceptions.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
-import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
+import 'package:petgo/features/auth/widgets/login_base_screen.dart';
 import 'package:petgo/routes/auth_routes.dart';
 
 class VeterinaryLoginScreen extends StatelessWidget {
@@ -9,7 +10,6 @@ class VeterinaryLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LoginBaseScreen(
       title: 'Login do Veterinário',
       subtitle: 'Conecte-se e transforme vidas de animais de estimação.',
@@ -19,6 +19,9 @@ class VeterinaryLoginScreen extends StatelessWidget {
       buttonColor: const Color(0xFFF28C2B),
       onRegisterTap: () {
         Navigator.pushNamed(context, '/veterinary-register');
+      },
+      onForgotPassword: () {
+        AuthRoutes.toForgotPassword(context, userType: 'veterinary');
       },
       onLogin: (email, password) async {
         try {

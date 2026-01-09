@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/core/errors/app_exceptions.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
-import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
+import 'package:petgo/features/auth/widgets/login_base_screen.dart';
 import 'package:petgo/routes/auth_routes.dart';
 
 class StoreLoginScreen extends StatelessWidget {
@@ -9,7 +10,6 @@ class StoreLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LoginBaseScreen(
       title: 'Login do Parceiro',
       subtitle: 'Acesse sua conta para gerenciar pedidos e produtos.',
@@ -20,6 +20,9 @@ class StoreLoginScreen extends StatelessWidget {
       buttonColor: const Color(0xFFEC5050),
       onRegisterTap: () {
         Navigator.pushNamed(context, '/store-register');
+      },
+      onForgotPassword: () {
+        AuthRoutes.toForgotPassword(context, userType: 'store');
       },
       onLogin: (email, password) async {
         try {

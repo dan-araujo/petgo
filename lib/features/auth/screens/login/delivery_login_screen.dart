@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:petgo/core/errors/app_exceptions.dart';
 import 'package:petgo/features/auth/services/auth_service.dart';
 import 'package:petgo/features/auth/services/token_service.dart';
-import 'package:petgo/features/auth/widgets/login/login_base_screen.dart';
+import 'package:petgo/features/auth/widgets/login_base_screen.dart';
 import 'package:petgo/routes/auth_routes.dart';
 
 class DeliveryLoginScreen extends StatelessWidget {
@@ -9,7 +10,6 @@ class DeliveryLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LoginBaseScreen(
       title: 'Login do Entregador',
       subtitle: 'Sua conta para entregar alegria aos tutores de pets.',
@@ -19,6 +19,9 @@ class DeliveryLoginScreen extends StatelessWidget {
       buttonColor: const Color(0xFF85AB6D),
       onRegisterTap: () {
         Navigator.pushNamed(context, '/delivery-register');
+      },
+      onForgotPassword: () {
+        AuthRoutes.toForgotPassword(context, userType: 'delivery');
       },
       onLogin: (email, password) async {
         try {
