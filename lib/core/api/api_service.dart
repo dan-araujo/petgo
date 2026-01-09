@@ -34,7 +34,7 @@ class ApiService {
     } on RateLimitException {
       rethrow;
     } on TimeoutException {
-      throw ServerException('Servidor indisponível');
+      throw ServerException('Servidor indispóvel');
     } catch (_) {
       throw ServerException('Erro de conexão com o servidor');
     }
@@ -103,7 +103,8 @@ class ApiService {
       throw UnauthorizedException(errorMessage);
     }
 
-    if (response.statusCode == 429) {
+    // Check for rate limit: either 429 or message contains "Aguarde"
+    if (response.statusCode == 429 || errorMessage.contains('Aguarde')) {
       throw RateLimitException(errorMessage);
     }
 
