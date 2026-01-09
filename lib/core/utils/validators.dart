@@ -119,8 +119,8 @@ bool isValidCNPJ(String cnpj) {
 String? validatePassword(String? value) {
   if (value == null || value.isEmpty) {
     return 'A senha é obrigatória';
-  } else if (value.length < 6) {
-    return 'Senha deve ter no mínimo 6 caracteres';
+  } else if (value.length < 8) {
+    return 'Senha deve ter no mínimo 8 caracteres';
   }
   return null; // válida
 }
