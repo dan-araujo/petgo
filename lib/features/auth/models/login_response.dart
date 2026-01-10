@@ -5,18 +5,14 @@ class LoginResponse {
   LoginResponse({required this.accessToken, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    final authResponse = json['data'] as Map<String, dynamic>? ?? {};
-    String accessToken = '';
+    // A API atual retorna aninhado: data -> data -> { status, message, data: { access_token, user } }
+    final outerData = json['data'] as Map<String, dynamic>? ?? {};
+    final innerWrapper = outerData['data'] as Map<String, dynamic>? ?? {};
+    final payload = innerWrapper['data'] as Map<String, dynamic>? ?? {};
 
-    if (authResponse['access_token'] is String) {
-      accessToken = authResponse['access_token'] as String;
-    } else if (authResponse['data'] is Map<String, dynamic>) {
-      final dataMap = authResponse['data'] as Map<String, dynamic>;
-      accessToken = dataMap['access_token'] as String? ?? '';
-    }
+    final accessToken = payload['access_token'] as String? ?? '';
 
-    final userDataRaw =
-        authResponse['user'] ?? authResponse['data']?['user'] ?? {};
+    final userDataRaw = payload['user'] ?? {};
     final userData = userDataRaw is Map<String, dynamic>
         ? userDataRaw
         : (userDataRaw as Map).cast<String, dynamic>();
