@@ -40,35 +40,36 @@ class AuthService {
       data: {'email': email, 'password': password},
     );
 
-    // DEBUG: Log the response to see what backend is returning
     if (kDebugMode) {
       print('🔍 AuthService._login() response: $response');
     }
 
-    // Backend wraps pending_code inside data field
-    final data = response['data'] as Map<String, dynamic>?;
-    final status = data?['status'] as String?;
-    
+    // Aqui o backend está aninhando data duas vezes: data.data.status
+    final outerData = response['data'] as Map<String, dynamic>?;
+    final innerData = outerData?['data'] as Map<String, dynamic>?;
+    final status = innerData?['status'] as String?;
+
     if (kDebugMode) {
-      print('🔍 Checking status in data: $status');
+      print('🔍 Checking status in inner data: $status');
     }
 
     if (status == 'pending_code' || status == 'new_sent_code') {
       if (kDebugMode) {
-        print('🔍 Status is pending_code or new_sent_code, throwing VerificationPendingException');
+        print(
+          '🔍 Status is pending_code or new_sent_code, throwing VerificationPendingException',
+        );
       }
       throw VerificationPendingException(
-        email: (data?['email'] as String?) ?? email,
-        message: (data?['message'] as String?) ?? 'Email não verificado',
+        email: (innerData?['email'] as String?) ?? email,
+        message: (innerData?['message'] as String?) ?? 'Email não verificado',
       );
     }
 
-    // If response indicates success, parse LoginResponse
     final isSuccess = response['success'] == true;
     if (kDebugMode) {
       print('🔍 isSuccess: $isSuccess');
     }
-    
+
     if (!isSuccess) {
       if (kDebugMode) {
         print('🔍 Response is not success, throwing ServerException');
