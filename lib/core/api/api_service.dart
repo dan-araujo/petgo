@@ -91,6 +91,7 @@ class ApiService {
       throw ServerException('Resposta inválida do servidor');
     }
 
+    // Success response (2xx)
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return {'success': true, 'data': decoded};
     }
@@ -99,19 +100,31 @@ class ApiService {
         ? decoded['message'] ?? 'Erro desconhecido'
         : 'Erro desconhecido';
 
+    // 401 Unauthorized
     if (response.statusCode == 401) {
       throw UnauthorizedException(errorMessage);
     }
 
-    // Check for rate limit: either 429 or message contains "Aguarde"
+    // Rate limit: either 429 or message contains "Aguarde"
     if (response.statusCode == 429 || errorMessage.contains('Aguarde')) {
       throw RateLimitException(errorMessage);
     }
 
+    // 4xx client errors - BUT allow these to pass through for special handling
+    // (e.g., pending_code, invalid_code in auth endpoints)
     if (response.statusCode >= 400 && response.statusCode < 500) {
-      throw ServerException(errorMessage);
+      // Return the error response instead of throwing
+      // This allows callers like AuthService to handle it
+      return {
+        'success': false,
+        'status': decoded is Map<String, dynamic> ? decoded['status'] : null,
+        'message': errorMessage,
+        'email': decoded is Map<String, dynamic> ? decoded['email'] : null,
+        'data': decoded is Map<String, dynamic> ? decoded['data'] : null,
+      };
     }
 
+    // 5xx server errors
     throw ServerException(errorMessage);
   }
 }
