@@ -43,16 +43,14 @@ class AuthService {
     // DEBUG: Log the response to see what backend is returning
     if (kDebugMode) {
       print('🔍 AuthService._login() response: $response');
-      print('🔍 Status field: ${response["status"]}');
-      print('🔍 Success field: ${response["success"]}');
-      print('🔍 Email field: ${response["email"]}');
     }
 
-    // Check if response has pending_code status at ROOT level (backend returns it there, not in data)
-    final status = response['status'] as String?;
+    // Backend wraps pending_code inside data field
+    final data = response['data'] as Map<String, dynamic>?;
+    final status = data?['status'] as String?;
     
     if (kDebugMode) {
-      print('🔍 Checking status: $status');
+      print('🔍 Checking status in data: $status');
     }
 
     if (status == 'pending_code' || status == 'new_sent_code') {
@@ -60,8 +58,8 @@ class AuthService {
         print('🔍 Status is pending_code or new_sent_code, throwing VerificationPendingException');
       }
       throw VerificationPendingException(
-        email: (response['email'] as String?) ?? email,
-        message: (response['message'] as String?) ?? 'Email não verificado',
+        email: (data?['email'] as String?) ?? email,
+        message: (data?['message'] as String?) ?? 'Email não verificado',
       );
     }
 
