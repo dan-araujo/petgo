@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenService {
   static const String _tokenKey = 'access_token';
-  static const String _userKey = 'user_data';
 
   static Future<void> saveToken(String token) async {
     // Validação crítica: nunca permite token vazio
