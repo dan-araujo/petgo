@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:petgo/core/constants/app_constants.dart';
 import 'package:petgo/core/errors/app_exceptions.dart';
@@ -91,6 +92,10 @@ class ApiService {
       throw ServerException('Resposta inválida do servidor');
     }
 
+    if (kDebugMode) {
+      print('🔍 API Response: Status=${response.statusCode}, Body=$decoded');
+    }
+
     // Success response (2xx)
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return {'success': true, 'data': decoded};
@@ -113,6 +118,9 @@ class ApiService {
     // 4xx client errors - BUT allow these to pass through for special handling
     // (e.g., pending_code, invalid_code in auth endpoints)
     if (response.statusCode >= 400 && response.statusCode < 500) {
+      if (kDebugMode) {
+        print('🔍 Client error (4xx): $errorMessage');
+      }
       // Return the error response instead of throwing
       // This allows callers like AuthService to handle it
       return {
