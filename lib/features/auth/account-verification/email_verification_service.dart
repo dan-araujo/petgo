@@ -10,8 +10,14 @@ class EmailVerificationService {
       data: {'email': email},
     );
 
+    // Check if response was successful
     if (response['success'] != true) {
-      throw ServerException(response['message'] ?? 'Erro ao enviar código');
+      // Check if there's a rate limit issue
+      final message = response['message'] as String? ?? 'Erro ao enviar código';
+      if (message.contains('Aguarde')) {
+        throw RateLimitException(message);
+      }
+      throw ServerException(message);
     }
   }
 
@@ -24,8 +30,14 @@ class EmailVerificationService {
       data: {'email': email, 'userType': UserTypeMapper.toBackendEnum(userType)},
     );
 
+    // Check if response was successful
     if (response['success'] != true) {
-      throw ServerException(response['message'] ?? 'Erro ao reenviar código');
+      // Check if there's a rate limit issue
+      final message = response['message'] as String? ?? 'Erro ao reenviar código';
+      if (message.contains('Aguarde')) {
+        throw RateLimitException(message);
+      }
+      throw ServerException(message);
     }
   }
 
@@ -39,8 +51,9 @@ class EmailVerificationService {
       data: {'email': email, 'code': code, 'userType': UserTypeMapper.toBackendEnum(userType)},
     );
 
+    // Check if response was successful
     if (response['success'] != true) {
-      throw ServerException(response['message'] ?? 'Código inválido');
+      throw ServerException(response['message'] ?? 'Código inválido ou expirado');
     }
   }
 }
