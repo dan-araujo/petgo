@@ -39,13 +39,9 @@ class AuthService {
       data: {'email': email, 'password': password},
     );
 
-    // Check if response was successful
-    final isSuccess = response['success'] == true;
-    
-    // Get status from response (backend returns it at root level)
+    // Check if response has pending_code status at ROOT level (backend returns it there, not in data)
     final status = response['status'] as String?;
-
-    // Handle pending verification status BEFORE trying to use token
+    
     if (status == 'pending_code' || status == 'new_sent_code') {
       throw VerificationPendingException(
         email: (response['email'] as String?) ?? email,
@@ -53,12 +49,12 @@ class AuthService {
       );
     }
 
-    // If not successful and no pending_code status, throw error
+    // If response indicates success, parse LoginResponse
+    final isSuccess = response['success'] == true;
     if (!isSuccess) {
       throw ServerException(response['message'] ?? 'Falha no login');
     }
 
-    // Only now, if we're sure it's a successful login, parse LoginResponse
     return LoginResponse.fromJson(response);
   }
 }
